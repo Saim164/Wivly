@@ -3,6 +3,8 @@ const {
   register,
   login,
   uploadProfilePicture,
+  updateUserProfile,
+  getUserAndProfile,
 } = require("../controllers/user.controllers");
 const authMiddleware = require("../middlewares/auth.js");
 const multer = require("multer");
@@ -23,5 +25,7 @@ router.route("/login").post(login);
 router
   .route("/upload_profile_picture")
   .post(authMiddleware, upload.single("profile_picture"), uploadProfilePicture);
+router.route("/user-update").post(authMiddleware, updateUserProfile);
+router.route("/get_user_and_profile").get(authMiddleware, getUserAndProfile);
 
 module.exports = router;

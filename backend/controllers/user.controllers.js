@@ -75,8 +75,47 @@ const uploadProfilePicture = async (req, res) => {
   }
 };
 
+const updateUserProfile = async (req, res) => {
+  try {
+    const user = req.user;
+    const { username, email } = req.body;
+
+    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+
+    if (existingUser && String(existingUser._id) !== String(user._id)) {
+      return res
+        .status(400)
+        .json({ message: "Username or email already taken" });
+    }
+
+    user.username = username;
+    user.email = email;
+
+    await user.save();
+    return res.json({ message: "User updated" });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+const getUserAndProfile = async (req, res) => {
+  try {
+    const user = req.user;
+    const userProfile = await Profile.findOne({ userId: user._id }).populate(
+      "userId",
+      "name email username profilePicture",
+    );
+
+    return res.json(userProfile);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   register,
   login,
   uploadProfilePicture,
+  updateUserProfile,
+  getUserAndProfile,
 };
