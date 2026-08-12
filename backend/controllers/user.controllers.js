@@ -61,7 +61,22 @@ const login = async (req, res) => {
   }
 };
 
+const uploadProfilePicture = async (req, res) => {
+  try {
+    const user = req.user;
+    user.profilePicture = req.file.filename;
+    await user.save();
+
+    return res
+      .status(200)
+      .json({ message: "Profile picture uploaded successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   register,
   login,
+  uploadProfilePicture,
 };
