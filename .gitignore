@@ -12,6 +12,7 @@ out/
 .DS_Store
 *.log
 
-uploads/*
-!uploads/.gitkeep
-!uploads/default.png
+# uploads
+backend/uploads/*
+!backend/uploads/.gitkeep
+!backend/uploads/default.png
