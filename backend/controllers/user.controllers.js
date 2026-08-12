@@ -130,6 +130,19 @@ const getUserAndProfile = async (req, res) => {
   }
 };
 
+const getAllUsersProfile = async (req, res) => {
+  try {
+    const profiles = await Profile.find().populate(
+      "userId",
+      "name email username profilePicture",
+    );
+
+    return res.json(profiles);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -137,4 +150,5 @@ module.exports = {
   updateUserProfile,
   updateProfileData,
   getUserAndProfile,
+  getAllUsersProfile,
 };

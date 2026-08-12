@@ -6,6 +6,7 @@ const {
   updateUserProfile,
   updateProfileData,
   getUserAndProfile,
+  getAllUsersProfile,
 } = require("../controllers/user.controllers");
 const authMiddleware = require("../middlewares/auth.js");
 const multer = require("multer");
@@ -24,10 +25,11 @@ const upload = multer({ storage: storage });
 router.route("/register").post(register);
 router.route("/login").post(login);
 router
-  .route("/upload_profile_picture")
+  .route("/upload-profile-picture")
   .post(authMiddleware, upload.single("profile_picture"), uploadProfilePicture);
 router.route("/user-update").post(authMiddleware, updateUserProfile);
-router.route("/update_profile_data").post(authMiddleware, updateProfileData);
-router.route("/get_user_and_profile").get(authMiddleware, getUserAndProfile);
+router.route("/update-profile-data").post(authMiddleware, updateProfileData);
+router.route("/get-user-and-profile").get(authMiddleware, getUserAndProfile);
+router.route("/get-all-users-profile").get(getAllUsersProfile);
 
 module.exports = router;
