@@ -7,6 +7,7 @@ const {
   updateProfileData,
   getUserAndProfile,
   getAllUsersProfile,
+  downloadProfile,
 } = require("../controllers/user.controllers");
 const authMiddleware = require("../middlewares/auth.js");
 const multer = require("multer");
@@ -31,5 +32,6 @@ router.route("/user-update").post(authMiddleware, updateUserProfile);
 router.route("/update-profile-data").post(authMiddleware, updateProfileData);
 router.route("/get-user-and-profile").get(authMiddleware, getUserAndProfile);
 router.route("/get-all-users-profile").get(getAllUsersProfile);
+router.route("/download-resume").get(downloadProfile);
 
 module.exports = router;

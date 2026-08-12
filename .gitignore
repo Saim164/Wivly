@@ -11,3 +11,7 @@ out/
 # misc
 .DS_Store
 *.log
+
+uploads/*
+!uploads/.gitkeep
+!uploads/default.png
