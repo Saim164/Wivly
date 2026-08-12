@@ -10,7 +10,7 @@ const register = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
@@ -98,6 +98,24 @@ const updateUserProfile = async (req, res) => {
   }
 };
 
+const updateProfileData = async (req, res) => {
+  try {
+    const user = req.user;
+    const profile = await Profile.findOne({ userId: user._id });
+    const { bio, currentPost, pastWork, education } = req.body;
+    profile.bio = bio;
+    profile.currentPost = currentPost;
+    profile.pastWork = pastWork;
+    profile.education = education;
+
+    await profile.save();
+
+    return res.json("Profile updated");
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 const getUserAndProfile = async (req, res) => {
   try {
     const user = req.user;
@@ -117,5 +135,6 @@ module.exports = {
   login,
   uploadProfilePicture,
   updateUserProfile,
+  updateProfileData,
   getUserAndProfile,
 };

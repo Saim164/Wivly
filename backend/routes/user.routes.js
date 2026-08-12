@@ -4,6 +4,7 @@ const {
   login,
   uploadProfilePicture,
   updateUserProfile,
+  updateProfileData,
   getUserAndProfile,
 } = require("../controllers/user.controllers");
 const authMiddleware = require("../middlewares/auth.js");
@@ -26,6 +27,7 @@ router
   .route("/upload_profile_picture")
   .post(authMiddleware, upload.single("profile_picture"), uploadProfilePicture);
 router.route("/user-update").post(authMiddleware, updateUserProfile);
+router.route("/update_profile_data").post(authMiddleware, updateProfileData);
 router.route("/get_user_and_profile").get(authMiddleware, getUserAndProfile);
 
 module.exports = router;
