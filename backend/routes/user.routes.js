@@ -8,6 +8,10 @@ const {
   getUserAndProfile,
   getAllUsersProfile,
   downloadProfile,
+  sendConnectionRequest,
+  getMyConnectionsRequests,
+  whatAreMyConnectionRequests,
+  acceptConnectionRequest,
 } = require("../controllers/user.controllers");
 const authMiddleware = require("../middlewares/auth.js");
 const multer = require("multer");
@@ -33,5 +37,17 @@ router.route("/update-profile-data").post(authMiddleware, updateProfileData);
 router.route("/get-user-and-profile").get(authMiddleware, getUserAndProfile);
 router.route("/get-all-users-profile").get(getAllUsersProfile);
 router.route("/download-resume").get(downloadProfile);
+router
+  .route("/send-connection-request")
+  .post(authMiddleware, sendConnectionRequest);
+router
+  .route("/get-my-connection-requests")
+  .get(authMiddleware, getMyConnectionsRequests);
+router
+  .route("/what-are-my-connections")
+  .get(authMiddleware, whatAreMyConnectionRequests);
+router
+  .route("/accept-connection-request")
+  .post(authMiddleware, acceptConnectionRequest);
 
 module.exports = router;

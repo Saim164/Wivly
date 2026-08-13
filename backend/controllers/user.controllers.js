@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/user.model");
 const Profile = require("../models/profile.model");
+const ConnectionRequest = require("../models/connection.model");
 const jwt = require("jsonwebtoken");
 const PDFDocument = require("pdfkit");
 const crypto = require("crypto");
@@ -137,6 +138,7 @@ const updateUserProfile = async (req, res) => {
 const updateProfileData = async (req, res) => {
   try {
     const user = req.user;
+    c;
     const profile = await Profile.findOne({ userId: user._id });
     const { bio, currentPost, pastWork, education } = req.body;
     profile.bio = bio;
@@ -199,6 +201,102 @@ const downloadProfile = async (req, res) => {
   }
 };
 
+const sendConnectionRequest = async (req, res) => {
+  const user = req.user;
+  const { connectionId } = req.body;
+
+  try {
+    if (String(user._id) === String(connectionId)) {
+      return res.status(400).json({ message: "Cannot connect with yourself" });
+    }
+
+    const connectionUser = await User.findOne({ _id: connectionId });
+    if (!connectionUser) {
+      return res.status(404).json({ message: "Connection user not found" });
+    }
+
+    const existingRequest = await ConnectionRequest.findOne({
+      $or: [
+        { userId: user._id, connectionId: connectionUser._id },
+        { userId: connectionUser._id, connectionId: user._id },
+      ],
+    });
+
+    if (existingRequest) {
+      return res.status(400).json({ message: "Request already sent" });
+    }
+
+    const request = new ConnectionRequest({
+      userId: user._id,
+      connectionId: connectionUser._id,
+    });
+
+    await request.save();
+
+    return res.json({ message: "Request sent" });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+const getMyConnectionsRequests = async (req, res) => {
+  const user = req.user;
+
+  try {
+    const connections = await ConnectionRequest.find({
+      userId: user._id,
+    }).populate("connectionId", "name username email profilePicture");
+
+    return res.json(connections);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+const whatAreMyConnectionRequests = async (req, res) => {
+  const user = req.user;
+
+  try {
+    const connections = await ConnectionRequest.find({
+      connectionId: user._id,
+    }).populate("userId", "name username email profilePicture");
+
+    return res.json(connections);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+const acceptConnectionRequest = async (req, res) => {
+  const { requestId, action_type } = req.body;
+  const user = req.user;
+
+  try {
+    const connection = await ConnectionRequest.findOne({
+      _id: requestId,
+    }).populate("userId", "name username email profilePicture");
+
+    if (!connection) {
+      return res.status(404).json({ message: "Connection not found" });
+    }
+
+    if (String(connection.connectionId) !== String(user._id)) {
+      return res.status(403).json({ message: "Not your request to accept" });
+    }
+
+    if (action_type === "accept") {
+      connection.status_accepted = true;
+    } else {
+      connection.status_accepted = false;
+    }
+
+    await connection.save();
+    return res.json({ message: "Request Updated" });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -208,4 +306,8 @@ module.exports = {
   getUserAndProfile,
   getAllUsersProfile,
   downloadProfile,
+  sendConnectionRequest,
+  getMyConnectionsRequests,
+  whatAreMyConnectionRequests,
+  acceptConnectionRequest,
 };
