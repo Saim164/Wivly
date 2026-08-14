@@ -1,5 +1,5 @@
 const Post = require("../models/post.model.js");
-// const Comment = require("../models/comment.model.js");
+const Comment = require("../models/comment.model.js");
 
 const activeCheck = async (req, res) => {
   return res.status(200).json({ message: "Active" });
@@ -54,35 +54,83 @@ const deletePost = async (req, res) => {
 
     await Post.findByIdAndDelete(post_id);
 
-    return res.json({ message: "Post deleted" });
+    return res.status(200).json({ message: "Post deleted" });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 };
 
-// const commentPost = async (req, res) => {
-//   const user = req.user;
-//   const { post_id, commentBody } = req.body;
-//   try {
-//     const post = await Post.findById(post_id);
-//     if (!post) {
-//       return res.status(404).json({ message: "Post not found" });
-//     }
-//     const comment = new Comment({
-//       userId: user._id,
-//       postId: post_id,
-//       body: commentBody,
-//     });
+const commentPost = async (req, res) => {
+  const user = req.user;
+  const { post_id, commentBody } = req.body;
+  try {
+    const post = await Post.findById(post_id);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+    const comment = new Comment({
+      userId: user._id,
+      postId: post_id,
+      body: commentBody,
+    });
 
-//     await comment.save();
-//   } catch (error) {
-//     return res.status(500).json({ message: error.message });
-//   }
-// };
+    await comment.save();
+
+    return res.status(200).json({ message: "Comment added" });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+const getCommentsByPost = async (req, res) => {
+  const { post_id } = req.body;
+
+  try {
+    const post = await Post.findById(post_id);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    const comments = await Comment.find({ postId: post_id }).populate(
+      "userId",
+      "name username profilePicture",
+    );
+
+    return res.status(200).json({ comments });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+const deleteComment = async (req, res) => {
+  const user = req.user;
+  const { comment_id } = req.body;
+
+  try {
+    const comment = await Comment.findById(comment_id);
+
+    if (!comment) {
+      return res.status(404).json({ message: "Comment not found" });
+    }
+
+    if (comment.userId.toString() !== user._id.toString()) {
+      return res.status(403).json({ message: "Not your comment" });
+    }
+
+    await Comment.findByIdAndDelete(comment_id);
+
+    return res.status(200).json({ message: "comment deleted" });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
 
 module.exports = {
   activeCheck,
   createPost,
   getAllPosts,
   deletePost,
+  commentPost,
+  getCommentsByPost,
+  deleteComment,
 };

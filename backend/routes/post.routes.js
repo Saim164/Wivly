@@ -6,6 +6,9 @@ const {
   createPost,
   getAllPosts,
   deletePost,
+  commentPost,
+  getCommentsByPost,
+  deleteComment,
 } = require("../controllers/post.controllers");
 
 const storage = multer.diskStorage({
@@ -25,5 +28,8 @@ router
   .post(authMiddleware, upload.single("media"), createPost);
 router.route("/get-all-posts").get(getAllPosts);
 router.route("/delete-post").delete(authMiddleware, deletePost);
+router.route("/comment-post").post(authMiddleware, commentPost);
+router.route("/get-comments-by-post").get(getCommentsByPost);
+router.route("/delete-comment").delete(authMiddleware, deleteComment);
 
 module.exports = router;
