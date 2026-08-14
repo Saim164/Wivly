@@ -9,8 +9,7 @@ const {
   commentPost,
   getCommentsByPost,
   deleteComment,
-  likeIncrement,
-  likeDecrement
+  toggleLike,
 } = require("../controllers/post.controllers");
 
 const storage = multer.diskStorage({
@@ -33,7 +32,6 @@ router.route("/delete-post").delete(authMiddleware, deletePost);
 router.route("/comment-post").post(authMiddleware, commentPost);
 router.route("/get-comments-by-post").get(getCommentsByPost);
 router.route("/delete-comment").delete(authMiddleware, deleteComment);
-router.route("/like").post(authMiddleware, likeIncrement);
-router.route("/unlike").post(authMiddleware, likeDecrement);
+router.route("/toggle-like").post(authMiddleware, toggleLike);
 
 module.exports = router;

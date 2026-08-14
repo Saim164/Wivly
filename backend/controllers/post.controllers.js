@@ -125,7 +125,7 @@ const deleteComment = async (req, res) => {
   }
 };
 
-const likeIncrement = async (req, res) => {
+const toggleLike = async (req, res) => {
   const user = req.user;
   const { post_id } = req.body;
 
@@ -135,29 +135,14 @@ const likeIncrement = async (req, res) => {
       return res.status(404).json({ message: "Post not found" });
     }
 
-    post.likes = post.likes + 1;
-    await post.save();
-    return res.status(200).json({ message: "Likes Incremented" });
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
-  }
-};
-
-const likeDecrement = async (req, res) => {
-  const { post_id } = req.body;
-
-  try {
-    const post = await Post.findById(post_id);
-    if (!post) {
-      return res.status(404).json({ message: "Post not found" });
-    }
-
-    if (post.likes > 0) {
-      post.likes = post.likes - 1;
+    if (post.likes.includes(user._id)) {
+      post.likes.pull(user._id);
+    } else {
+      post.likes.push(user._id);
     }
 
     await post.save();
-    return res.status(200).json({ message: "Like removed" });
+    return res.status(200).json({ likes: post.likes.length });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -171,6 +156,5 @@ module.exports = {
   commentPost,
   getCommentsByPost,
   deleteComment,
-  likeIncrement,
-  likeDecrement,
+  toggleLike,
 };
