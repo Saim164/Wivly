@@ -92,7 +92,7 @@ const login = async (req, res) => {
     }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
-    return res.status(200).json({ token });
+    return res.status(200).json({ token: token });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
