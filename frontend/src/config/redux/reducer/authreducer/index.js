@@ -21,6 +21,9 @@ const authSlice = createSlice({
     handleLoginUser: (state) => {
       state.message = "hello";
     },
+    emptyMessage: (state) => {
+      state.message = "";
+    },
   },
 
   extraReducers: (builder) => {
@@ -39,26 +42,25 @@ const authSlice = createSlice({
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
-        state.message = action.payload;
+        state.message = action.payload?.message || "Login failed";
       })
       .addCase(registerUser.pending, (state) => {
         state.isLoading = true;
         state.message = "Registering you";
       })
-      .addCase(registerUser.fulfilled, (state, action) => {
+      .addCase(registerUser.fulfilled, (state) => {
         state.isLoading = false;
         state.isError = false;
         state.isSuccess = true;
-        state.loggedIn = true;
-        state.message = "Registration is successful";
+        state.message = "Registration successful. Please sign in.";
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
-        state.message = action.payload;
+        state.message = action.payload?.message || "Registration failed";
       });
   },
 });
 
-export const { reset, handleLoginUser } = authSlice.actions;
+export const { reset, handleLoginUser, emptyMessage } = authSlice.actions;
 export default authSlice.reducer;
