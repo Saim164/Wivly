@@ -1,5 +1,37 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+:root {
+  --color-brand: #c2255f;
+  --color-brand-dark: #8f1c47;
+  --color-brand-deep: #6e1836;
+  --color-brand-light: #fdeee9;
+  --color-text: #201417;
+  --color-text-muted: #6b5a5e;
+  --color-bg: #fdf5ee;
+  --color-surface: #ffffff;
+  --color-bg-alt: #fbf1ec;
+  --color-border: #f1e4de;
+}
+
 * {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Poppins", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img {
+  max-width: 100%;
+  display: block;
 }

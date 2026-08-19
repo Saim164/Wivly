@@ -1,0 +1,53 @@
+.container {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding-inline: 2rem;
+  background: rgba(255, 251, 248, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-block: 1.1rem;
+}
+
+.logo {
+  cursor: pointer;
+  user-select: none;
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-brand);
+}
+
+.btnJoin {
+  width: fit-content;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background: var(--color-brand);
+  color: #fff;
+  border: none;
+  padding: 0.65rem 1.4rem;
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(194, 37, 95, 0.28);
+}
+
+.btnJoin:hover {
+  background: var(--color-brand-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(194, 37, 95, 0.35);
+}
+
+.btnJoin:active {
+  transform: translateY(0);
+}
