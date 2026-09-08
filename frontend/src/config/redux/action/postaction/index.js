@@ -64,4 +64,41 @@ const toggleLike = createAsyncThunk(
   },
 );
 
-export { getAllPosts, createPost, deletePost, toggleLike };
+const getCommentsByPost = createAsyncThunk(
+  "post/getCommentsByPost",
+  async (postId, thunkApi) => {
+    try {
+      const response = await clientServer.get(
+        "/api/posts/get-comments-by-post",
+        { params: { post_id: postId } },
+      );
+      return thunkApi.fulfillWithValue({ ...response.data, postId });
+    } catch (error) {
+      return thunkApi.rejectWithValue(error.response.data);
+    }
+  },
+);
+
+const commentPost = createAsyncThunk(
+  "post/commentPost",
+  async ({ postId, commentBody }, thunkApi) => {
+    try {
+      const response = await clientServer.post("/api/posts/comment-post", {
+        post_id: postId,
+        commentBody,
+      });
+      return thunkApi.fulfillWithValue(response.data);
+    } catch (error) {
+      return thunkApi.rejectWithValue(error.response.data);
+    }
+  },
+);
+
+export {
+  getAllPosts,
+  createPost,
+  deletePost,
+  toggleLike,
+  getCommentsByPost,
+  commentPost,
+};

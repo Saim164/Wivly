@@ -4,6 +4,8 @@ import {
   createPost,
   deletePost,
   toggleLike,
+  getCommentsByPost,
+  commentPost,
 } from "../../action/postaction/index.js";
 
 const initialState = {
@@ -86,6 +88,21 @@ const postSlice = createSlice({
       .addCase(toggleLike.rejected, (state, action) => {
         state.isError = true;
         state.message = action.payload?.message || "Could not like post";
+      })
+      .addCase(getCommentsByPost.pending, (state) => {
+        state.comment = [];
+      })
+      .addCase(getCommentsByPost.fulfilled, (state, action) => {
+        state.comment = action.payload.comments || [];
+        state.postId = action.payload.postId;
+      })
+      .addCase(getCommentsByPost.rejected, (state, action) => {
+        state.isError = true;
+        state.message = action.payload?.message || "Could not load comments";
+      })
+      .addCase(commentPost.rejected, (state, action) => {
+        state.isError = true;
+        state.message = action.payload?.message || "Could not add comment";
       });
   },
 });

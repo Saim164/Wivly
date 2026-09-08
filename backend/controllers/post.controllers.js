@@ -83,7 +83,7 @@ const commentPost = async (req, res) => {
 };
 
 const getCommentsByPost = async (req, res) => {
-  const { post_id } = req.body;
+  const { post_id } = req.query;
 
   try {
     const post = await Post.findById(post_id);

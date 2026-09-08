@@ -8,6 +8,8 @@ import {
   getAllPosts,
   deletePost,
   toggleLike,
+  getCommentsByPost,
+  commentPost,
 } from "@/config/redux/action/postaction";
 
 function Dashboard() {
@@ -15,6 +17,8 @@ function Dashboard() {
   const postState = useSelector((state) => state.posts);
   const [postContent, setPostContent] = useState("");
   const [fileContent, setFileContent] = useState(null);
+  const [commentPostId, setCommentPostId] = useState(null);
+  const [commentText, setCommentText] = useState("");
   const dispatch = useDispatch();
 
   const currentUserId = authState.user?.userId?._id;
@@ -25,6 +29,30 @@ function Dashboard() {
 
   const handleToggleLike = (postId) => {
     dispatch(toggleLike(postId));
+  };
+
+  const openComments = (postId) => {
+    setCommentPostId(postId);
+    dispatch(getCommentsByPost(postId));
+  };
+
+  const closeComments = () => {
+    setCommentPostId(null);
+    setCommentText("");
+  };
+
+  const handleAddComment = async (e) => {
+    e.preventDefault();
+    if (!commentText.trim()) return;
+
+    const resultAction = await dispatch(
+      commentPost({ postId: commentPostId, commentBody: commentText }),
+    );
+
+    if (commentPost.fulfilled.match(resultAction)) {
+      setCommentText("");
+      dispatch(getCommentsByPost(commentPostId));
+    }
   };
 
   const handlePost = async () => {
@@ -209,7 +237,11 @@ function Dashboard() {
                     <span>Like</span>
                   </button>
 
-                  <button type="button" className={styles.actionButton}>
+                  <button
+                    type="button"
+                    className={styles.actionButton}
+                    onClick={() => openComments(post._id)}
+                  >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -248,6 +280,83 @@ function Dashboard() {
             })}
           </div>
         </div>
+
+        {commentPostId && (
+          <div className={styles.modalOverlay} onClick={closeComments}>
+            <div
+              className={styles.modal}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className={styles.modalHeader}>
+                <h3>Comments</h3>
+                <button
+                  type="button"
+                  className={styles.modalClose}
+                  onClick={closeComments}
+                  aria-label="Close"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 18 18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              <div className={styles.commentList}>
+                {postState.comment.length === 0 ? (
+                  <p className={styles.commentEmpty}>No comments yet.</p>
+                ) : (
+                  postState.comment.map((comment) => (
+                    <div key={comment._id} className={styles.commentItem}>
+                      <img
+                        className={styles.commentAvatar}
+                        src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/${
+                          comment.userId?.profilePicture || "default.png"
+                        }`}
+                        alt={comment.userId?.name}
+                      />
+                      <div>
+                        <p className={styles.commentAuthor}>
+                          {comment.userId?.name}
+                          <span>@{comment.userId?.username}</span>
+                        </p>
+                        <p className={styles.commentBody}>{comment.body}</p>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <form
+                className={styles.commentForm}
+                onSubmit={handleAddComment}
+              >
+                <input
+                  className={styles.commentInput}
+                  placeholder="Write a comment..."
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                />
+                <button
+                  type="submit"
+                  className={styles.commentSubmit}
+                  disabled={!commentText.trim()}
+                >
+                  Send
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
       </DashboardLayout>
     </Userlayout>
   );
