@@ -50,4 +50,18 @@ const deletePost = createAsyncThunk(
   },
 );
 
-export { getAllPosts, createPost, deletePost };
+const toggleLike = createAsyncThunk(
+  "post/toggleLike",
+  async (postId, thunkApi) => {
+    try {
+      const response = await clientServer.post("/api/posts/toggle-like", {
+        post_id: postId,
+      });
+      return thunkApi.fulfillWithValue({ ...response.data, postId });
+    } catch (error) {
+      return thunkApi.rejectWithValue(error.response.data);
+    }
+  },
+);
+
+export { getAllPosts, createPost, deletePost, toggleLike };

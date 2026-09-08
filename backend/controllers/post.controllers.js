@@ -142,7 +142,7 @@ const toggleLike = async (req, res) => {
     }
 
     await post.save();
-    return res.status(200).json({ likes: post.likes.length });
+    return res.status(200).json({ post_id, likes: post.likes });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

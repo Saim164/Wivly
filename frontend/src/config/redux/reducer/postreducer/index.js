@@ -3,6 +3,7 @@ import {
   getAllPosts,
   createPost,
   deletePost,
+  toggleLike,
 } from "../../action/postaction/index.js";
 
 const initialState = {
@@ -73,6 +74,18 @@ const postSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload?.message || "Could not delete post";
+      })
+      .addCase(toggleLike.fulfilled, (state, action) => {
+        const target = state.post.find(
+          (post) => post._id === action.payload.postId,
+        );
+        if (target && Array.isArray(action.payload.likes)) {
+          target.likes = action.payload.likes;
+        }
+      })
+      .addCase(toggleLike.rejected, (state, action) => {
+        state.isError = true;
+        state.message = action.payload?.message || "Could not like post";
       });
   },
 });
