@@ -1,5 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { loginUser, registerUser } from "../../action/authaction";
+import {
+  loginUser,
+  registerUser,
+  getAboutUser,
+  getAllUsers,
+} from "../../action/authaction";
 
 const initialState = {
   user: [],
@@ -7,10 +12,13 @@ const initialState = {
   isSuccess: false,
   isLoading: false,
   loggedIn: false,
+  isTokenThere: false,
   message: "",
   profileFetched: false,
   connections: [],
   connectionRequests: [],
+  allProfileFetched: false,
+  users: [],
 };
 
 const authSlice = createSlice({
@@ -23,6 +31,12 @@ const authSlice = createSlice({
     },
     emptyMessage: (state) => {
       state.message = "";
+    },
+    setTokenIsThere: (state) => {
+      state.isTokenThere = true;
+    },
+    setTokenIsNotThere: (state) => {
+      state.isTokenThere = false;
     },
   },
 
@@ -37,6 +51,7 @@ const authSlice = createSlice({
         state.isError = false;
         state.isSuccess = true;
         state.loggedIn = true;
+        state.isTokenThere = true;
         state.message = "Login is successful";
       })
       .addCase(loginUser.rejected, (state, action) => {
@@ -58,9 +73,43 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload?.message || "Registration failed";
+      })
+      .addCase(getAboutUser.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getAboutUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.profileFetched = true;
+        state.user = action.payload;
+      })
+      .addCase(getAboutUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload?.message || "Could not load profile";
+      })
+      // .addCase(getAllUser.pending, (state) => {
+      //   state.isLoading = true;
+      // })
+      .addCase(getAllUsers.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.allProfileFetched = true;
+        state.users = action.payload;
       });
+    // .addCase(getAboutUser.rejected, (state, action) => {
+    //   state.isLoading = false;
+    //   state.isError = true;
+    //   state.message = action.payload?.message || "Could not load profile";
+    // });
   },
 });
 
-export const { reset, handleLoginUser, emptyMessage } = authSlice.actions;
+export const {
+  reset,
+  handleLoginUser,
+  emptyMessage,
+  setTokenIsThere,
+  setTokenIsNotThere,
+} = authSlice.actions;
 export default authSlice.reducer;

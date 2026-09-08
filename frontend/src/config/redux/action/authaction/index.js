@@ -38,4 +38,29 @@ const registerUser = createAsyncThunk(
   },
 );
 
-export { loginUser, registerUser };
+const getAboutUser = createAsyncThunk(
+  "user/getAboutUser",
+  async (_, thunkApi) => {
+    try {
+      const response = await clientServer.get(
+        "/api/users/get-user-and-profile",
+      );
+
+      return thunkApi.fulfillWithValue(response.data);
+    } catch (error) {
+      return thunkApi.rejectWithValue(error.response.data);
+    }
+  },
+);
+
+const getAllUsers = createAsyncThunk("user/getAllUsers", async (_, thunkApi) => {
+  try {
+    const response = await clientServer.get("/api/users/get-all-users-profile");
+
+    return thunkApi.fulfillWithValue(response.data);
+  } catch (error) {
+    return thunkApi.rejectWithValue(error.response.data);
+  }
+});
+
+export { loginUser, registerUser, getAboutUser , getAllUsers };

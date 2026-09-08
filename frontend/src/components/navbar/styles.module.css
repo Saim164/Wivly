@@ -51,3 +51,84 @@
 .btnJoin:active {
   transform: translateY(0);
 }
+
+.profileWrap {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  opacity: 1;
+  transition: opacity 0.25s ease;
+}
+
+.fadeOut {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.welcomeText {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.welcomeText span {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.profileLink {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  cursor: pointer;
+  user-select: none;
+  padding: 0.4rem 0.9rem 0.4rem 0.4rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--color-border);
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.profileLink p {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.profileLink:hover {
+  border-color: var(--color-brand);
+  background: var(--color-brand-light);
+  transform: translateY(-1px);
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--color-brand);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .welcomeText {
+    display: none;
+  }
+
+  .profileLink p {
+    display: none;
+  }
+
+  .profileLink {
+    padding: 0.3rem;
+    border: none;
+  }
+
+  .profileLink:hover {
+    background: transparent;
+    border: none;
+  }
+}
