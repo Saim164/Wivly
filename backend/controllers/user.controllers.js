@@ -297,6 +297,29 @@ const acceptConnectionRequest = async (req, res) => {
   }
 };
 
+const getUser = async (req, res) => {
+  const { username, id } = req.query;
+
+  if (!username && !id) {
+    return res.status(400).json({ message: "username or id is required" });
+  }
+
+  try {
+    const query = username ? { username } : { _id: id };
+    const user = await User.findOne(query).select(
+      "name username email profilePicture",
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json(user);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -310,4 +333,5 @@ module.exports = {
   getMyConnectionsRequests,
   whatAreMyConnectionRequests,
   acceptConnectionRequest,
+  getUser,
 };
