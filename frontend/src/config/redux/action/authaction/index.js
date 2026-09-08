@@ -169,6 +169,25 @@ const getMyConnections = createAsyncThunk(
   },
 );
 
+const uploadProfilePicture = createAsyncThunk(
+  "user/uploadProfilePicture",
+  async (file, thunkApi) => {
+    try {
+      const formData = new FormData();
+      formData.append("profile_picture", file);
+
+      const response = await clientServer.post(
+        "/api/users/upload-profile-picture",
+        formData,
+      );
+
+      return thunkApi.fulfillWithValue(response.data);
+    } catch (error) {
+      return thunkApi.rejectWithValue(error.response.data);
+    }
+  },
+);
+
 const downloadResume = createAsyncThunk(
   "user/downloadResume",
   async (userId, thunkApi) => {
@@ -219,4 +238,5 @@ export {
   getMyConnections,
   updateProfileData,
   downloadResume,
+  uploadProfilePicture,
 };

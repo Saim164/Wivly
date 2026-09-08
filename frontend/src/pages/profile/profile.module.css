@@ -14,12 +14,43 @@
   border-radius: 1rem;
 }
 
+.avatarWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
 .avatar {
   width: 4.5rem;
   height: 4.5rem;
   border-radius: 50%;
   object-fit: cover;
-  flex-shrink: 0;
+  display: block;
+}
+
+.avatarEdit {
+  position: absolute;
+  right: -0.15rem;
+  bottom: -0.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: var(--color-brand);
+  color: #fff;
+  border: 2px solid var(--color-surface);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.avatarEdit svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.avatarEdit:hover {
+  background: var(--color-brand-dark);
 }
 
 .headerInfo {

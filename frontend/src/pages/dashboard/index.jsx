@@ -3,6 +3,7 @@ import Userlayout from "@/layout/userLayout";
 import styles from "./index.module.css";
 import { useSelector, useDispatch } from "react-redux";
 import { useState } from "react";
+import { useRouter } from "next/router";
 import {
   createPost,
   getAllPosts,
@@ -20,8 +21,10 @@ function Dashboard() {
   const [commentPostId, setCommentPostId] = useState(null);
   const [commentText, setCommentText] = useState("");
   const dispatch = useDispatch();
+  const router = useRouter();
 
   const currentUserId = authState.user?.userId?._id;
+  const currentUsername = authState.user?.userId?.username;
 
   const handleDeletePost = (postId) => {
     dispatch(deletePost(postId));
@@ -78,6 +81,10 @@ function Dashboard() {
                 authState.user?.userId?.profilePicture || "default.png"
               }`}
               alt="Your profile"
+              onClick={() =>
+                currentUsername && router.push(`/profile/${currentUsername}`)
+              }
+              title="View your profile"
             />
             <div className={styles.composerBody}>
               <textarea

@@ -11,11 +11,17 @@ function Discover() {
   const dispatch = useDispatch();
   const router = useRouter();
 
+  const currentUserId = authState.user?.userId?._id;
+
   useEffect(() => {
     if (!authState.allProfileFetched) {
       dispatch(getAllUsers());
     }
   }, [dispatch, authState.allProfileFetched]);
+
+  const otherUsers = authState.users.filter(
+    (profile) => profile.userId?._id !== currentUserId,
+  );
 
   return (
     <Userlayout>
@@ -23,12 +29,12 @@ function Discover() {
         <div className={styles.container}>
           <h1 className={styles.heading}>Discover People</h1>
 
-          {authState.users.length === 0 && (
+          {otherUsers.length === 0 && (
             <div className={styles.emptyState}>No people to show yet.</div>
           )}
 
           <div className={styles.grid}>
-            {authState.users.map((profile) => (
+            {otherUsers.map((profile) => (
               <div
                 key={profile._id}
                 className={styles.card}

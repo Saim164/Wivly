@@ -37,7 +37,9 @@ export default function Navbar() {
             </p>
             <div
               className={styles.profileLink}
-              onClick={() => router.push("/profile")}
+              onClick={() =>
+                router.push(`/profile/${authState.user?.userId?.username}`)
+              }
             >
               <span className={styles.avatar}>
                 {authState.user?.userId?.name?.charAt(0).toUpperCase() || "U"}
