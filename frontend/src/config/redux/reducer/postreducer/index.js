@@ -1,5 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getAllPosts, createPost } from "../../action/postaction/index.js";
+import {
+  getAllPosts,
+  createPost,
+  deletePost,
+} from "../../action/postaction/index.js";
 
 const initialState = {
   post: [],
@@ -52,6 +56,23 @@ const postSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload?.message || "Could not create post";
+      })
+      .addCase(deletePost.pending, (state) => {
+        state.isLoading = true;
+        state.message = "Deleting post...";
+      })
+      .addCase(deletePost.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.message = "Post deleted";
+        state.post = state.post.filter(
+          (post) => post._id !== action.payload.postId,
+        );
+      })
+      .addCase(deletePost.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload?.message || "Could not delete post";
       });
   },
 });

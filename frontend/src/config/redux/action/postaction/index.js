@@ -36,4 +36,18 @@ const createPost = createAsyncThunk(
   },
 );
 
-export { getAllPosts, createPost };
+const deletePost = createAsyncThunk(
+  "post/deletePost",
+  async (postId, thunkApi) => {
+    try {
+      const response = await clientServer.delete("/api/posts/delete-post", {
+        data: { post_id: postId },
+      });
+      return thunkApi.fulfillWithValue({ ...response.data, postId });
+    } catch (error) {
+      return thunkApi.rejectWithValue(error.response.data);
+    }
+  },
+);
+
+export { getAllPosts, createPost, deletePost };

@@ -146,6 +146,37 @@
   margin-bottom: 0.85rem;
 }
 
+.deleteButton {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.deleteButton svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.deleteButton:hover:not(:disabled) {
+  background: var(--color-brand-light);
+  color: var(--color-brand);
+}
+
+.deleteButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .postAvatar {
   width: 2.5rem;
   height: 2.5rem;
