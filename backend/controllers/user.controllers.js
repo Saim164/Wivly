@@ -138,7 +138,6 @@ const updateUserProfile = async (req, res) => {
 const updateProfileData = async (req, res) => {
   try {
     const user = req.user;
-    c;
     const profile = await Profile.findOne({ userId: user._id });
     const { bio, currentPost, pastWork, education } = req.body;
     profile.bio = bio;
@@ -396,7 +395,9 @@ const getUser = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    return res.status(200).json(user);
+    const profile = await Profile.findOne({ userId: user._id });
+
+    return res.status(200).json({ user, profile });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

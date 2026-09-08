@@ -169,6 +169,27 @@ const getMyConnections = createAsyncThunk(
   },
 );
 
+const updateProfileData = createAsyncThunk(
+  "user/updateProfileData",
+  async (data, thunkApi) => {
+    try {
+      const response = await clientServer.post(
+        "/api/users/update-profile-data",
+        {
+          bio: data.bio,
+          currentPost: data.currentPost,
+          pastWork: data.pastWork,
+          education: data.education,
+        },
+      );
+
+      return thunkApi.fulfillWithValue(response.data);
+    } catch (error) {
+      return thunkApi.rejectWithValue(error.response.data);
+    }
+  },
+);
+
 export {
   loginUser,
   registerUser,
@@ -181,4 +202,5 @@ export {
   getConnectionRequests,
   respondConnectionRequest,
   getMyConnections,
+  updateProfileData,
 };

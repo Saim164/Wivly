@@ -25,6 +25,7 @@ const initialState = {
   allProfileFetched: false,
   users: [],
   viewedUser: null,
+  viewedProfile: null,
   viewedUserFetched: false,
   connectionMessage: "",
   connectionStatus: null,
@@ -109,12 +110,14 @@ const authSlice = createSlice({
       .addCase(getUserByUsername.pending, (state) => {
         state.viewedUserFetched = false;
         state.viewedUser = null;
+        state.viewedProfile = null;
         state.connectionMessage = "";
         state.connectionStatus = null;
       })
       .addCase(getUserByUsername.fulfilled, (state, action) => {
         state.viewedUserFetched = true;
-        state.viewedUser = action.payload;
+        state.viewedUser = action.payload.user;
+        state.viewedProfile = action.payload.profile;
       })
       .addCase(getUserByUsername.rejected, (state, action) => {
         state.viewedUserFetched = true;
