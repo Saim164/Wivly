@@ -12,6 +12,7 @@ import {
   getConnectionStatus,
   respondConnectionRequest,
   updateProfileData,
+  downloadResume,
 } from "@/config/redux/action/authaction";
 
 const EMPTY_WORK = { company: "", position: "", years: "" };
@@ -104,6 +105,16 @@ function Profile() {
   const removeRow = (key, index) =>
     setForm((f) => ({ ...f, [key]: f[key].filter((_, i) => i !== index) }));
 
+  const handleDownloadResume = async () => {
+    const result = await dispatch(downloadResume(viewedUser._id));
+    if (downloadResume.fulfilled.match(result)) {
+      window.open(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/${result.payload.message}`,
+        "_blank",
+      );
+    }
+  };
+
   const handleSave = async (e) => {
     e.preventDefault();
     const result = await dispatch(updateProfileData(form));
@@ -146,62 +157,88 @@ function Profile() {
                   )}
                 </div>
 
-                {isOwnProfile ? (
+                <div className={styles.headerActions}>
                   <button
                     type="button"
-                    className={styles.secondaryButton}
-                    onClick={openEdit}
+                    className={styles.iconButton}
+                    onClick={handleDownloadResume}
+                    aria-label="Download resume"
+                    title="Download resume"
                   >
-                    Edit Profile
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
+                      />
+                    </svg>
                   </button>
-                ) : (
-                  connectionStatus && (
-                    <div className={styles.connectActions}>
-                      {connectionStatus.status === "none" && (
-                        <button
-                          type="button"
-                          className={styles.connectButton}
-                          onClick={handleConnect}
-                        >
-                          Connect
-                        </button>
-                      )}
 
-                      {connectionStatus.status === "pending_sent" && (
-                        <button
-                          type="button"
-                          className={styles.secondaryButton}
-                          onClick={handleCancel}
-                        >
-                          Cancel Request
-                        </button>
-                      )}
-
-                      {connectionStatus.status === "pending_received" && (
-                        <>
+                  {isOwnProfile ? (
+                    <button
+                      type="button"
+                      className={styles.secondaryButton}
+                      onClick={openEdit}
+                    >
+                      Edit Profile
+                    </button>
+                  ) : (
+                    connectionStatus && (
+                      <div className={styles.connectActions}>
+                        {connectionStatus.status === "none" && (
                           <button
                             type="button"
                             className={styles.connectButton}
-                            onClick={() => handleRespond("accept")}
+                            onClick={handleConnect}
                           >
-                            Accept
+                            Connect
                           </button>
+                        )}
+
+                        {connectionStatus.status === "pending_sent" && (
                           <button
                             type="button"
                             className={styles.secondaryButton}
-                            onClick={() => handleRespond("decline")}
+                            onClick={handleCancel}
                           >
-                            Decline
+                            Cancel Request
                           </button>
-                        </>
-                      )}
+                        )}
 
-                      {connectionStatus.status === "connected" && (
-                        <span className={styles.connectedBadge}>Connected</span>
-                      )}
-                    </div>
-                  )
-                )}
+                        {connectionStatus.status === "pending_received" && (
+                          <>
+                            <button
+                              type="button"
+                              className={styles.connectButton}
+                              onClick={() => handleRespond("accept")}
+                            >
+                              Accept
+                            </button>
+                            <button
+                              type="button"
+                              className={styles.secondaryButton}
+                              onClick={() => handleRespond("decline")}
+                            >
+                              Decline
+                            </button>
+                          </>
+                        )}
+
+                        {connectionStatus.status === "connected" && (
+                          <span className={styles.connectedBadge}>
+                            Connected
+                          </span>
+                        )}
+                      </div>
+                    )
+                  )}
+                </div>
               </div>
 
               {viewedProfile?.bio && (

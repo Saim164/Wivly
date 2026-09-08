@@ -169,6 +169,21 @@ const getMyConnections = createAsyncThunk(
   },
 );
 
+const downloadResume = createAsyncThunk(
+  "user/downloadResume",
+  async (userId, thunkApi) => {
+    try {
+      const response = await clientServer.get("/api/users/download-resume", {
+        params: { id: userId },
+      });
+
+      return thunkApi.fulfillWithValue(response.data);
+    } catch (error) {
+      return thunkApi.rejectWithValue(error.response.data);
+    }
+  },
+);
+
 const updateProfileData = createAsyncThunk(
   "user/updateProfileData",
   async (data, thunkApi) => {
@@ -203,4 +218,5 @@ export {
   respondConnectionRequest,
   getMyConnections,
   updateProfileData,
+  downloadResume,
 };

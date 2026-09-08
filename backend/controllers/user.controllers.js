@@ -9,29 +9,83 @@ const fs = require("fs");
 
 const convetUserDataToPdf = (userData) => {
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument();
+    const doc = new PDFDocument({ margin: 50 });
     const outputPath = crypto.randomBytes(32).toString("hex") + ".pdf";
     const stream = fs.createWriteStream("uploads/" + outputPath);
 
     doc.pipe(stream);
 
-    doc.image(`uploads/${userData.userId.profilePicture}`, {
-      align: "center",
-      width: 100,
-    });
+    const ink = "#201417";
+    const brand = "#c2255f";
+    const muted = "#6b6b6b";
+    const rule = "#e5e0e2";
 
-    doc.fontSize(14).text(`Name : ${userData.userId.name}`);
-    doc.fontSize(14).text(`Username : ${userData.userId.username}`);
-    doc.fontSize(14).text(`Email : ${userData.userId.email}`);
-    doc.fontSize(14).text(`Bio : ${userData.bio}`);
-    doc.fontSize(14).text(`Current Position : ${userData.currentPost}`);
-    doc.fontSize(14).text("Past Work : ");
+    const picturePath = `uploads/${userData.userId.profilePicture}`;
+    if (fs.existsSync(picturePath)) {
+      try {
+        doc.image(picturePath, doc.page.width - 110, 50, {
+          width: 60,
+          height: 60,
+        });
+      } catch (e) {
+        // ignore unreadable image
+      }
+    }
 
-    userData.pastWork.forEach((work, index) => {
-      doc.fontSize(14).text(`Company : ${work.company}`);
-      doc.fontSize(14).text(`Position : ${work.position}`);
-      doc.fontSize(14).text(`Years : ${work.years}`);
-    });
+    doc.fillColor(ink).fontSize(24).text(userData.userId.name);
+    doc.moveDown(0.2);
+    doc.fillColor(brand).fontSize(12).text(`@${userData.userId.username}`);
+    if (userData.currentPost) {
+      doc.fillColor(ink).fontSize(12).text(userData.currentPost);
+    }
+    doc.fillColor(muted).fontSize(10).text(userData.userId.email);
+
+    doc.moveDown(0.8);
+    doc
+      .strokeColor(rule)
+      .lineWidth(1)
+      .moveTo(doc.x, doc.y)
+      .lineTo(doc.page.width - 50, doc.y)
+      .stroke();
+
+    const section = (title) => {
+      doc.moveDown(0.9);
+      doc.fillColor(brand).fontSize(12).text(title.toUpperCase());
+      doc.moveDown(0.4);
+    };
+
+    if (userData.bio) {
+      section("About");
+      doc.fillColor(ink).fontSize(11).text(userData.bio);
+    }
+
+    if (userData.pastWork && userData.pastWork.length > 0) {
+      section("Experience");
+      userData.pastWork.forEach((work) => {
+        const heading = work.company
+          ? `${work.position} · ${work.company}`
+          : work.position;
+        doc.fillColor(ink).fontSize(11).text(heading);
+        if (work.years) {
+          doc.fillColor(muted).fontSize(10).text(work.years);
+        }
+        doc.moveDown(0.5);
+      });
+    }
+
+    if (userData.education && userData.education.length > 0) {
+      section("Education");
+      userData.education.forEach((edu) => {
+        doc.fillColor(ink).fontSize(11).text(edu.school);
+        const detail = [edu.degree, edu.fieldOfStudy]
+          .filter(Boolean)
+          .join(", ");
+        if (detail) {
+          doc.fillColor(muted).fontSize(10).text(detail);
+        }
+        doc.moveDown(0.5);
+      });
+    }
 
     doc.end();
 
