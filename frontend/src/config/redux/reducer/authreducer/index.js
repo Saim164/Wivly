@@ -4,6 +4,8 @@ import {
   registerUser,
   getAboutUser,
   getAllUsers,
+  getUserByUsername,
+  sendConnectionRequest,
 } from "../../action/authaction";
 
 const initialState = {
@@ -19,6 +21,9 @@ const initialState = {
   connectionRequests: [],
   allProfileFetched: false,
   users: [],
+  viewedUser: null,
+  viewedUserFetched: false,
+  connectionMessage: "",
 };
 
 const authSlice = createSlice({
@@ -96,6 +101,28 @@ const authSlice = createSlice({
         state.isError = false;
         state.allProfileFetched = true;
         state.users = action.payload;
+      })
+      .addCase(getUserByUsername.pending, (state) => {
+        state.viewedUserFetched = false;
+        state.viewedUser = null;
+        state.connectionMessage = "";
+      })
+      .addCase(getUserByUsername.fulfilled, (state, action) => {
+        state.viewedUserFetched = true;
+        state.viewedUser = action.payload;
+      })
+      .addCase(getUserByUsername.rejected, (state, action) => {
+        state.viewedUserFetched = true;
+        state.isError = true;
+        state.message = action.payload?.message || "Could not load profile";
+      })
+      .addCase(sendConnectionRequest.fulfilled, (state, action) => {
+        state.connectionMessage =
+          action.payload?.message || "Request sent";
+      })
+      .addCase(sendConnectionRequest.rejected, (state, action) => {
+        state.connectionMessage =
+          action.payload?.message || "Could not send request";
       });
     // .addCase(getAboutUser.rejected, (state, action) => {
     //   state.isLoading = false;

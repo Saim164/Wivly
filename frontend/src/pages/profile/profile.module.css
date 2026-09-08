@@ -1,0 +1,130 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+}
+
+.avatar {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.headerInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.username {
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+}
+
+.connectButton {
+  padding: 0.6rem 1.5rem;
+  border: none;
+  border-radius: 999px;
+  background: var(--color-brand);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.connectButton:hover {
+  background: var(--color-brand-dark);
+  transform: translateY(-2px);
+}
+
+.connectionMessage {
+  font-size: 0.85rem;
+  color: var(--color-brand);
+}
+
+.feed {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.postCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  padding: 1.25rem;
+}
+
+.postHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.postAvatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.postAuthor {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+.postUsername {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.postBody {
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--color-text);
+  white-space: pre-wrap;
+}
+
+.postMedia {
+  margin-top: 0.85rem;
+  width: 100%;
+  max-height: 28rem;
+  border-radius: 0.75rem;
+  object-fit: cover;
+}
+
+.postFooter {
+  margin-top: 0.85rem;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.emptyState {
+  text-align: center;
+  color: var(--color-text-muted);
+  padding: 2.5rem 1rem;
+  background: var(--color-surface);
+  border: 1.5px dashed var(--color-border);
+  border-radius: 1rem;
+}

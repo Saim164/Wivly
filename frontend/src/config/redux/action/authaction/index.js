@@ -63,4 +63,42 @@ const getAllUsers = createAsyncThunk("user/getAllUsers", async (_, thunkApi) => 
   }
 });
 
-export { loginUser, registerUser, getAboutUser , getAllUsers };
+const getUserByUsername = createAsyncThunk(
+  "user/getUserByUsername",
+  async (username, thunkApi) => {
+    try {
+      const response = await clientServer.get("/api/users/get-user", {
+        params: { username },
+      });
+
+      return thunkApi.fulfillWithValue(response.data);
+    } catch (error) {
+      return thunkApi.rejectWithValue(error.response.data);
+    }
+  },
+);
+
+const sendConnectionRequest = createAsyncThunk(
+  "user/sendConnectionRequest",
+  async (connectionId, thunkApi) => {
+    try {
+      const response = await clientServer.post(
+        "/api/users/send-connection-request",
+        { connectionId },
+      );
+
+      return thunkApi.fulfillWithValue(response.data);
+    } catch (error) {
+      return thunkApi.rejectWithValue(error.response.data);
+    }
+  },
+);
+
+export {
+  loginUser,
+  registerUser,
+  getAboutUser,
+  getAllUsers,
+  getUserByUsername,
+  sendConnectionRequest,
+};
