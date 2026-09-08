@@ -7,6 +7,9 @@ import { useRouter } from "next/router";
 import {
   getUserByUsername,
   sendConnectionRequest,
+  cancelConnectionRequest,
+  getConnectionStatus,
+  respondConnectionRequest,
 } from "@/config/redux/action/authaction";
 
 function Profile() {
@@ -20,6 +23,7 @@ function Profile() {
   const viewedUser = authState.viewedUser;
   const currentUserId = authState.user?.userId?._id;
   const isOwnProfile = viewedUser && viewedUser._id === currentUserId;
+  const connectionStatus = authState.connectionStatus;
 
   useEffect(() => {
     if (username) {
@@ -27,10 +31,36 @@ function Profile() {
     }
   }, [dispatch, username]);
 
-  const handleConnect = () => {
-    if (viewedUser) {
-      dispatch(sendConnectionRequest(viewedUser._id));
+  useEffect(() => {
+    if (viewedUser && !isOwnProfile) {
+      dispatch(getConnectionStatus(viewedUser._id));
     }
+  }, [dispatch, viewedUser, isOwnProfile]);
+
+  const refreshStatus = () => {
+    if (viewedUser) {
+      dispatch(getConnectionStatus(viewedUser._id));
+    }
+  };
+
+  const handleConnect = async () => {
+    await dispatch(sendConnectionRequest(viewedUser._id));
+    refreshStatus();
+  };
+
+  const handleCancel = async () => {
+    await dispatch(cancelConnectionRequest(viewedUser._id));
+    refreshStatus();
+  };
+
+  const handleRespond = async (action_type) => {
+    await dispatch(
+      respondConnectionRequest({
+        requestId: connectionStatus.requestId,
+        action_type,
+      }),
+    );
+    refreshStatus();
   };
 
   const userPosts = viewedUser
@@ -59,22 +89,53 @@ function Profile() {
                   <p className={styles.name}>{viewedUser.name}</p>
                   <p className={styles.username}>@{viewedUser.username}</p>
                 </div>
-                {!isOwnProfile && (
-                  <button
-                    type="button"
-                    className={styles.connectButton}
-                    onClick={handleConnect}
-                  >
-                    Connect
-                  </button>
+                {!isOwnProfile && connectionStatus && (
+                  <div className={styles.connectActions}>
+                    {connectionStatus.status === "none" && (
+                      <button
+                        type="button"
+                        className={styles.connectButton}
+                        onClick={handleConnect}
+                      >
+                        Connect
+                      </button>
+                    )}
+
+                    {connectionStatus.status === "pending_sent" && (
+                      <button
+                        type="button"
+                        className={styles.secondaryButton}
+                        onClick={handleCancel}
+                      >
+                        Cancel Request
+                      </button>
+                    )}
+
+                    {connectionStatus.status === "pending_received" && (
+                      <>
+                        <button
+                          type="button"
+                          className={styles.connectButton}
+                          onClick={() => handleRespond("accept")}
+                        >
+                          Accept
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.secondaryButton}
+                          onClick={() => handleRespond("decline")}
+                        >
+                          Decline
+                        </button>
+                      </>
+                    )}
+
+                    {connectionStatus.status === "connected" && (
+                      <span className={styles.connectedBadge}>Connected</span>
+                    )}
+                  </div>
                 )}
               </div>
-
-              {authState.connectionMessage && (
-                <p className={styles.connectionMessage}>
-                  {authState.connectionMessage}
-                </p>
-              )}
 
               <div className={styles.feed}>
                 {userPosts.length === 0 && (

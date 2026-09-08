@@ -94,6 +94,81 @@ const sendConnectionRequest = createAsyncThunk(
   },
 );
 
+const cancelConnectionRequest = createAsyncThunk(
+  "user/cancelConnectionRequest",
+  async (connectionId, thunkApi) => {
+    try {
+      const response = await clientServer.post(
+        "/api/users/cancel-connection-request",
+        { connectionId },
+      );
+
+      return thunkApi.fulfillWithValue(response.data);
+    } catch (error) {
+      return thunkApi.rejectWithValue(error.response.data);
+    }
+  },
+);
+
+const getConnectionStatus = createAsyncThunk(
+  "user/getConnectionStatus",
+  async (userId, thunkApi) => {
+    try {
+      const response = await clientServer.get("/api/users/connection-status", {
+        params: { userId },
+      });
+
+      return thunkApi.fulfillWithValue(response.data);
+    } catch (error) {
+      return thunkApi.rejectWithValue(error.response.data);
+    }
+  },
+);
+
+const getConnectionRequests = createAsyncThunk(
+  "user/getConnectionRequests",
+  async (_, thunkApi) => {
+    try {
+      const response = await clientServer.get(
+        "/api/users/what-are-my-connections",
+      );
+
+      return thunkApi.fulfillWithValue(response.data);
+    } catch (error) {
+      return thunkApi.rejectWithValue(error.response.data);
+    }
+  },
+);
+
+const respondConnectionRequest = createAsyncThunk(
+  "user/respondConnectionRequest",
+  async ({ requestId, action_type }, thunkApi) => {
+    try {
+      const response = await clientServer.post(
+        "/api/users/accept-connection-request",
+        { requestId, action_type },
+      );
+
+      return thunkApi.fulfillWithValue(response.data);
+    } catch (error) {
+      return thunkApi.rejectWithValue(error.response.data);
+    }
+  },
+);
+
+const getMyConnections = createAsyncThunk(
+  "user/getMyConnections",
+  async (_, thunkApi) => {
+    try {
+      const response = await clientServer.get("/api/users/my-connections");
+
+      return thunkApi.fulfillWithValue(response.data);
+    } catch (error) {
+      return thunkApi.rejectWithValue(error.response.data);
+    }
+  },
+);
+
 export {
   loginUser,
   registerUser,
@@ -101,4 +176,9 @@ export {
   getAllUsers,
   getUserByUsername,
   sendConnectionRequest,
+  cancelConnectionRequest,
+  getConnectionStatus,
+  getConnectionRequests,
+  respondConnectionRequest,
+  getMyConnections,
 };

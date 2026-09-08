@@ -286,12 +286,94 @@ const acceptConnectionRequest = async (req, res) => {
 
     if (action_type === "accept") {
       connection.status_accepted = true;
-    } else {
-      connection.status_accepted = false;
+      await connection.save();
+      return res.json({ message: "Request accepted" });
     }
 
-    await connection.save();
-    return res.json({ message: "Request Updated" });
+    await ConnectionRequest.findByIdAndDelete(connection._id);
+    return res.json({ message: "Request declined" });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+const getMyConnections = async (req, res) => {
+  const user = req.user;
+
+  try {
+    const connections = await ConnectionRequest.find({
+      status_accepted: true,
+      $or: [{ userId: user._id }, { connectionId: user._id }],
+    })
+      .populate("userId", "name username email profilePicture")
+      .populate("connectionId", "name username email profilePicture");
+
+    const people = connections.map((connection) =>
+      String(connection.userId._id) === String(user._id)
+        ? connection.connectionId
+        : connection.userId,
+    );
+
+    return res.json(people);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+const cancelConnectionRequest = async (req, res) => {
+  const user = req.user;
+  const { connectionId } = req.body;
+
+  try {
+    const request = await ConnectionRequest.findOne({
+      userId: user._id,
+      connectionId: connectionId,
+      status_accepted: null,
+    });
+
+    if (!request) {
+      return res.status(404).json({ message: "Request not found" });
+    }
+
+    await ConnectionRequest.findByIdAndDelete(request._id);
+    return res.json({ message: "Request cancelled" });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+const getConnectionStatus = async (req, res) => {
+  const user = req.user;
+  const { userId } = req.query;
+
+  if (!userId) {
+    return res.status(400).json({ message: "userId is required" });
+  }
+
+  try {
+    const request = await ConnectionRequest.findOne({
+      $or: [
+        { userId: user._id, connectionId: userId },
+        { userId: userId, connectionId: user._id },
+      ],
+    });
+
+    if (!request || request.status_accepted === false) {
+      return res.status(200).json({ status: "none" });
+    }
+
+    if (request.status_accepted === true) {
+      return res
+        .status(200)
+        .json({ status: "connected", requestId: request._id });
+    }
+
+    const status =
+      String(request.userId) === String(user._id)
+        ? "pending_sent"
+        : "pending_received";
+
+    return res.status(200).json({ status, requestId: request._id });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -333,5 +415,8 @@ module.exports = {
   getMyConnectionsRequests,
   whatAreMyConnectionRequests,
   acceptConnectionRequest,
+  cancelConnectionRequest,
+  getConnectionStatus,
+  getMyConnections,
   getUser,
 };

@@ -12,6 +12,9 @@ const {
   getMyConnectionsRequests,
   whatAreMyConnectionRequests,
   acceptConnectionRequest,
+  cancelConnectionRequest,
+  getConnectionStatus,
+  getMyConnections,
   getUser,
 } = require("../controllers/user.controllers");
 const authMiddleware = require("../middlewares/auth.js");
@@ -51,5 +54,10 @@ router
 router
   .route("/accept-connection-request")
   .post(authMiddleware, acceptConnectionRequest);
+router
+  .route("/cancel-connection-request")
+  .post(authMiddleware, cancelConnectionRequest);
+router.route("/connection-status").get(authMiddleware, getConnectionStatus);
+router.route("/my-connections").get(authMiddleware, getMyConnections);
 
 module.exports = router;
