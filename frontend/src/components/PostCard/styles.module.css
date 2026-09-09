@@ -1,0 +1,120 @@
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  padding: 1.25rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.author {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+.username {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.deleteButton {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.deleteButton svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.deleteButton:hover {
+  background: var(--color-brand-light);
+  color: var(--color-brand);
+}
+
+.body {
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--color-text);
+  white-space: pre-wrap;
+}
+
+.media {
+  margin-top: 0.85rem;
+  width: 100%;
+  max-height: 28rem;
+  border-radius: 0.75rem;
+  object-fit: cover;
+}
+
+.likeCount {
+  margin-top: 0.85rem;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.actionButton {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.5rem;
+  border: none;
+  border-radius: 0.6rem;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.actionButton svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.actionButton:hover {
+  background: var(--color-brand-light);
+  color: var(--color-brand);
+}
+
+.actionActive {
+  color: var(--color-brand);
+}

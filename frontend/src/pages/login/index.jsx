@@ -1,91 +1,92 @@
-import Userlayout from "@/layout/userLayout";
-import { useDispatch, useSelector } from "react-redux";
-import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { useDispatch, useSelector } from "react-redux";
+import UserLayout from "@/layout/userLayout";
 import styles from "./style.module.css";
-import { loginUser, registerUser } from "@/config/redux/action/authaction";
-import { emptyMessage } from "@/config/redux/reducer/authreducer";
+import {
+  loginUser,
+  registerUser,
+  clearMessage,
+} from "@/config/redux/authSlice";
 
 export default function Login() {
-  const authState = useSelector((state) => state.auth);
   const router = useRouter();
   const dispatch = useDispatch();
+  const auth = useSelector((state) => state.auth);
 
-  const [username, setUsername] = useState("");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const [userLoginMethod, setUserLoginMethod] = useState(false);
-
-  useEffect(() => {
-    if (authState.loggedIn) {
-      router.push("/dashboard");
-    }
-  }, [authState.loggedIn]);
+  const [isSignIn, setIsSignIn] = useState(false);
+  const [form, setForm] = useState({
+    name: "",
+    username: "",
+    email: "",
+    password: "",
+  });
 
   useEffect(() => {
     if (localStorage.getItem("token")) {
-      router.push("/dashboard");
+      router.replace("/dashboard");
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
-    dispatch(emptyMessage());
-  }, [userLoginMethod]);
+    if (auth.loggedIn) {
+      router.replace("/dashboard");
+    }
+  }, [auth.loggedIn, router]);
 
-  const handleLogin = () => {
-    dispatch(loginUser({ email, password }));
+  const setField = (field) => (e) =>
+    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+
+  const switchMode = () => {
+    setIsSignIn((prev) => !prev);
+    dispatch(clearMessage());
   };
 
-  const handleRegister = async () => {
-    const resultAction = await dispatch(
-      registerUser({ name, username, email, password }),
-    );
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (auth.isLoading) return;
 
-    if (registerUser.fulfilled.match(resultAction)) {
-      setPassword("");
-      setUserLoginMethod(true);
+    if (isSignIn) {
+      dispatch(loginUser({ email: form.email, password: form.password }));
+      return;
+    }
+
+    const result = await dispatch(registerUser(form));
+    if (registerUser.fulfilled.match(result)) {
+      setForm((prev) => ({ ...prev, password: "" }));
+      setIsSignIn(true);
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (authState.isLoading) return;
-    userLoginMethod ? handleLogin() : handleRegister();
-  };
-
-  const messageClassName = [
+  const messageClass = [
     styles.message,
-    authState.isError && styles.messageError,
-    authState.isSuccess && !authState.isError && styles.messageSuccess,
+    auth.isError && styles.messageError,
+    auth.isSuccess && !auth.isError && styles.messageSuccess,
   ]
     .filter(Boolean)
     .join(" ");
 
   return (
-    <Userlayout>
+    <UserLayout>
       <div className={styles.page}>
         <div className={styles.card}>
           <form className={styles.formSide} onSubmit={handleSubmit}>
-            <p className={styles.heading}>
-              {userLoginMethod ? "Sign In" : "Sign Up"}
-            </p>
+            <p className={styles.heading}>{isSignIn ? "Sign In" : "Sign Up"}</p>
 
-            {authState.message ? (
-              <p className={messageClassName}>{authState.message}</p>
+            {auth.message ? (
+              <p className={messageClass}>{auth.message}</p>
             ) : null}
 
             <div className={styles.inputContainer}>
-              {!userLoginMethod && (
+              {!isSignIn && (
                 <div className={styles.row}>
                   <input
                     className={styles.input}
                     type="text"
                     placeholder="Username"
                     autoComplete="username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    value={form.username}
+                    onChange={setField("username")}
                     required
                   />
                   <input
@@ -93,8 +94,8 @@ export default function Login() {
                     type="text"
                     placeholder="Name"
                     autoComplete="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    value={form.name}
+                    onChange={setField("name")}
                     required
                   />
                 </div>
@@ -105,17 +106,17 @@ export default function Login() {
                 type="email"
                 placeholder="Email"
                 autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={form.email}
+                onChange={setField("email")}
                 required
               />
               <input
                 className={styles.input}
                 type="password"
                 placeholder="Password"
-                autoComplete={userLoginMethod ? "current-password" : "new-password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                autoComplete={isSignIn ? "current-password" : "new-password"}
+                value={form.password}
+                onChange={setField("password")}
                 required
               />
             </div>
@@ -123,34 +124,26 @@ export default function Login() {
             <button
               type="submit"
               className={styles.submitBtn}
-              disabled={authState.isLoading}
+              disabled={auth.isLoading}
             >
-              {authState.isLoading
-                ? userLoginMethod
-                  ? "Signing in..."
-                  : "Creating account..."
-                : userLoginMethod
-                  ? "Sign In"
-                  : "Sign Up"}
+              {isSignIn ? "Sign In" : "Sign Up"}
             </button>
           </form>
 
           <div className={styles.infoSide}>
             <p>
-              {userLoginMethod
-                ? "Don't have an account?"
-                : "Already have an account?"}
+              {isSignIn ? "Don't have an account?" : "Already have an account?"}
             </p>
             <button
               type="button"
               className={styles.switchBtn}
-              onClick={() => setUserLoginMethod(!userLoginMethod)}
+              onClick={switchMode}
             >
-              {userLoginMethod ? "Sign Up" : "Sign In"}
+              {isSignIn ? "Sign Up" : "Sign In"}
             </button>
           </div>
         </div>
       </div>
-    </Userlayout>
+    </UserLayout>
   );
 }

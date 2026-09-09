@@ -1,20 +1,26 @@
 const mongoose = require("mongoose");
 
-const connectionRequest = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+const connectionRequestSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    connectionId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    status_accepted: {
+      type: Boolean,
+      default: null,
+    },
   },
-  connectionId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  },
-  status_accepted: {
-    type: Boolean,
-    default: null,
-  },
-});
+  { timestamps: true },
+);
 
-const ConnectionRequest = mongoose.model("ConnectionRequest", connectionRequest);
+const ConnectionRequest = mongoose.model(
+  "ConnectionRequest",
+  connectionRequestSchema,
+);
 
 module.exports = ConnectionRequest;

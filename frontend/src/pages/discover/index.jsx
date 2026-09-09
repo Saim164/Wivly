@@ -1,66 +1,61 @@
-import { getAllUsers } from "@/config/redux/action/authaction";
-import DashboardLayout from "@/layout/dashboardLayout";
-import Userlayout from "@/layout/userLayout";
-import styles from "./index.module.css";
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
+import { useDispatch, useSelector } from "react-redux";
+import UserLayout from "@/layout/userLayout";
+import DashboardLayout from "@/layout/dashboardLayout";
+import styles from "./index.module.css";
+import { getAllUsers } from "@/config/redux/authSlice";
 import { mediaUrl } from "@/config/mediaUrl";
 
-function Discover() {
-  const authState = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
+export default function Discover() {
   const router = useRouter();
-
-  const currentUserId = authState.user?.userId?._id;
+  const dispatch = useDispatch();
+  const { users, user } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    if (!authState.allProfileFetched) {
-      dispatch(getAllUsers());
-    }
-  }, [dispatch, authState.allProfileFetched]);
+    dispatch(getAllUsers());
+  }, [dispatch]);
 
-  const otherUsers = authState.users.filter(
-    (profile) => profile.userId?._id !== currentUserId,
+  const currentUserId = user?.userId?._id;
+  const otherUsers = users.filter(
+    (profile) => profile.userId && profile.userId._id !== currentUserId,
   );
 
   return (
-    <Userlayout>
+    <UserLayout>
       <DashboardLayout>
         <div className={styles.container}>
           <h1 className={styles.heading}>Discover People</h1>
 
-          {otherUsers.length === 0 && (
+          {otherUsers.length === 0 ? (
             <div className={styles.emptyState}>No people to show yet.</div>
+          ) : (
+            <div className={styles.grid}>
+              {otherUsers.map((profile) => (
+                <div
+                  key={profile._id}
+                  className={styles.card}
+                  onClick={() =>
+                    router.push(`/profile/${profile.userId.username}`)
+                  }
+                >
+                  <img
+                    className={styles.avatar}
+                    src={mediaUrl(profile.userId.profilePicture)}
+                    alt={profile.userId.name}
+                  />
+                  <p className={styles.name}>{profile.userId.name}</p>
+                  <p className={styles.username}>@{profile.userId.username}</p>
+                  {profile.currentPost && (
+                    <p className={styles.currentPost}>{profile.currentPost}</p>
+                  )}
+                  {profile.bio && <p className={styles.bio}>{profile.bio}</p>}
+                </div>
+              ))}
+            </div>
           )}
-
-          <div className={styles.grid}>
-            {otherUsers.map((profile) => (
-              <div
-                key={profile._id}
-                className={styles.card}
-                onClick={() =>
-                  router.push(`/profile/${profile.userId?.username}`)
-                }
-              >
-                <img
-                  className={styles.avatar}
-                  src={mediaUrl(profile.userId?.profilePicture)}
-                  alt={profile.userId?.name}
-                />
-                <p className={styles.name}>{profile.userId?.name}</p>
-                <p className={styles.username}>@{profile.userId?.username}</p>
-                {profile.currentPost && (
-                  <p className={styles.currentPost}>{profile.currentPost}</p>
-                )}
-                {profile.bio && <p className={styles.bio}>{profile.bio}</p>}
-              </div>
-            ))}
-          </div>
         </div>
       </DashboardLayout>
-    </Userlayout>
+    </UserLayout>
   );
 }
-
-export default Discover;

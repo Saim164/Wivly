@@ -1,47 +1,48 @@
-import DashboardLayout from "@/layout/dashboardLayout";
-import Userlayout from "@/layout/userLayout";
-import styles from "./index.module.css";
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useCallback, useEffect } from "react";
 import { useRouter } from "next/router";
+import { useDispatch, useSelector } from "react-redux";
+import UserLayout from "@/layout/userLayout";
+import DashboardLayout from "@/layout/dashboardLayout";
+import styles from "./index.module.css";
 import {
-  getConnectionRequests,
+  getReceivedRequests,
   getMyConnections,
   respondConnectionRequest,
-} from "@/config/redux/action/authaction";
+} from "@/config/redux/authSlice";
 import { mediaUrl } from "@/config/mediaUrl";
 
-function MyConnections() {
-  const dispatch = useDispatch();
+export default function MyConnections() {
   const router = useRouter();
-  const authState = useSelector((state) => state.auth);
-
-  const pendingRequests = authState.connectionRequests.filter(
-    (request) => request.status_accepted === null,
+  const dispatch = useDispatch();
+  const { connectionRequests, connections } = useSelector(
+    (state) => state.auth,
   );
 
-  useEffect(() => {
-    dispatch(getConnectionRequests());
+  const loadConnections = useCallback(() => {
+    dispatch(getReceivedRequests());
     dispatch(getMyConnections());
   }, [dispatch]);
 
-  const handleRespond = async (requestId, action_type) => {
+  useEffect(() => {
+    loadConnections();
+  }, [loadConnections]);
+
+  const respond = async (requestId, action_type) => {
     await dispatch(respondConnectionRequest({ requestId, action_type }));
-    dispatch(getConnectionRequests());
-    dispatch(getMyConnections());
+    loadConnections();
   };
 
   return (
-    <Userlayout>
+    <UserLayout>
       <DashboardLayout>
         <div className={styles.container}>
           <section>
             <h2 className={styles.heading}>Connection Requests</h2>
-            {pendingRequests.length === 0 ? (
+            {connectionRequests.length === 0 ? (
               <div className={styles.emptyState}>No pending requests.</div>
             ) : (
               <div className={styles.list}>
-                {pendingRequests.map((request) => (
+                {connectionRequests.map((request) => (
                   <div key={request._id} className={styles.row}>
                     <img
                       className={styles.avatar}
@@ -61,14 +62,14 @@ function MyConnections() {
                       <button
                         type="button"
                         className={styles.primaryButton}
-                        onClick={() => handleRespond(request._id, "accept")}
+                        onClick={() => respond(request._id, "accept")}
                       >
                         Accept
                       </button>
                       <button
                         type="button"
                         className={styles.secondaryButton}
-                        onClick={() => handleRespond(request._id, "decline")}
+                        onClick={() => respond(request._id, "decline")}
                       >
                         Decline
                       </button>
@@ -81,11 +82,11 @@ function MyConnections() {
 
           <section>
             <h2 className={styles.heading}>My Connections</h2>
-            {authState.connections.length === 0 ? (
+            {connections.length === 0 ? (
               <div className={styles.emptyState}>No connections yet.</div>
             ) : (
               <div className={styles.list}>
-                {authState.connections.map((person) => (
+                {connections.map((person) => (
                   <div
                     key={person._id}
                     className={styles.row}
@@ -107,8 +108,6 @@ function MyConnections() {
           </section>
         </div>
       </DashboardLayout>
-    </Userlayout>
+    </UserLayout>
   );
 }
-
-export default MyConnections;

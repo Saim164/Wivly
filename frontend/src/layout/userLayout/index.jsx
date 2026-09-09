@@ -1,6 +1,6 @@
-import Navbar from "../../components/navbar/index";
+import Navbar from "@/components/navbar";
 
-export default function Userlayout({ children }) {
+export default function UserLayout({ children }) {
   return (
     <div>
       <Navbar />

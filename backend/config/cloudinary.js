@@ -1,8 +1,5 @@
 const cloudinary = require("cloudinary").v2;
 
-// Two ways to configure:
-//  - set CLOUDINARY_URL (the single line Cloudinary shows on the dashboard), or
-//  - set CLOUDINARY_CLOUD_NAME / CLOUDINARY_API_KEY / CLOUDINARY_API_SECRET
 if (process.env.CLOUDINARY_URL) {
   cloudinary.config();
 } else {
@@ -13,8 +10,6 @@ if (process.env.CLOUDINARY_URL) {
   });
 }
 
-// Streams an in-memory file buffer to Cloudinary and resolves with the result
-// ({ secure_url, public_id, ... }). resource_type "auto" handles images + video.
 const uploadToCloudinary = (fileBuffer) =>
   new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(

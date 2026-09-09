@@ -1,41 +1,32 @@
 const mongoose = require("mongoose");
 
-const postSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  },
-  body: {
-    type: String,
-    required: true,
-  },
-  likes: [
-    {
+const postSchema = new mongoose.Schema(
+  {
+    userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-  ],
-  createdAt: {
-    type: Date,
-    default: Date.now,
+    body: {
+      type: String,
+      required: true,
+    },
+    likes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    media: {
+      type: String,
+      default: "",
+    },
+    fileType: {
+      type: String,
+      default: "",
+    },
   },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
-  },
-  media: {
-    type: String,
-    default: "",
-  },
-  active: {
-    type: Boolean,
-    default: true,
-  },
-  fileType: {
-    type: String,
-    default: "",
-  },
-});
+  { timestamps: true },
+);
 
 const Post = mongoose.model("Post", postSchema);
 

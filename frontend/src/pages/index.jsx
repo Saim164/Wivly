@@ -1,12 +1,12 @@
 import Head from "next/head";
-import styles from "@/styles/Home.module.css";
 import { useRouter } from "next/router";
-import Userlayout from "@/layout/userLayout";
+import styles from "@/styles/Home.module.css";
+import UserLayout from "@/layout/userLayout";
 
 export default function Home() {
   const router = useRouter();
   return (
-    <Userlayout>
+    <UserLayout>
       <Head>
         <title>Wivly — Connect without exaggeration</title>
         <meta
@@ -23,8 +23,8 @@ export default function Home() {
             without <span className={styles.highlight}>exaggeration</span>
           </h1>
           <p className={styles.subheading}>
-            A true social media platform — share stories, not bluffs. Build
-            real connections that actually matter.
+            A true social media platform — share stories, not bluffs. Build real
+            connections that actually matter.
           </p>
 
           <ul className={styles.features}>
@@ -50,10 +50,13 @@ export default function Home() {
 
         <div className={styles.heroRight}>
           <div className={styles.imageWrap}>
-            <img src="/images/connectionImg.jpg" alt="People connecting on Wivly" />
+            <img
+              src="/images/connectionImg.jpg"
+              alt="People connecting on Wivly"
+            />
           </div>
         </div>
       </section>
-    </Userlayout>
+    </UserLayout>
   );
 }

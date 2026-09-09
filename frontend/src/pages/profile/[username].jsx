@@ -1,45 +1,53 @@
-import DashboardLayout from "@/layout/dashboardLayout";
-import Userlayout from "@/layout/userLayout";
-import styles from "./profile.module.css";
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
+import { useDispatch, useSelector } from "react-redux";
+import UserLayout from "@/layout/userLayout";
+import DashboardLayout from "@/layout/dashboardLayout";
+import PostCard from "@/components/PostCard";
+import CommentsModal from "@/components/CommentsModal";
+import EditProfileModal from "@/components/EditProfileModal";
+import styles from "./profile.module.css";
+import { mediaUrl } from "@/config/mediaUrl";
 import {
   getUserByUsername,
   getAboutUser,
   sendConnectionRequest,
   cancelConnectionRequest,
-  getConnectionStatus,
   respondConnectionRequest,
+  getConnectionStatus,
   updateProfileData,
-  downloadResume,
   uploadProfilePicture,
-} from "@/config/redux/action/authaction";
-import { mediaUrl } from "@/config/mediaUrl";
+  downloadResume,
+} from "@/config/redux/authSlice";
+import {
+  toggleLike,
+  deletePost,
+  getComments,
+  addComment,
+} from "@/config/redux/postSlice";
 
-const EMPTY_WORK = { company: "", position: "", years: "" };
-const EMPTY_EDUCATION = { school: "", degree: "", fieldOfStudy: "" };
-
-function Profile() {
+export default function Profile() {
   const router = useRouter();
   const { username } = router.query;
   const dispatch = useDispatch();
 
-  const authState = useSelector((state) => state.auth);
-  const postState = useSelector((state) => state.posts);
+  const {
+    user,
+    viewedUser,
+    viewedProfile,
+    viewedUserFetched,
+    connectionStatus,
+  } = useSelector((state) => state.auth);
+  const { posts, comments } = useSelector((state) => state.posts);
 
-  const viewedUser = authState.viewedUser;
-  const viewedProfile = authState.viewedProfile;
-  const currentUserId = authState.user?.userId?._id;
+  const [isEditing, setIsEditing] = useState(false);
+  const [openCommentsFor, setOpenCommentsFor] = useState(null);
+
+  const currentUserId = user?.userId?._id;
   const isOwnProfile = viewedUser && viewedUser._id === currentUserId;
-  const connectionStatus = authState.connectionStatus;
-
-  const [form, setForm] = useState(null);
 
   useEffect(() => {
-    if (username) {
-      dispatch(getUserByUsername(username));
-    }
+    if (username) dispatch(getUserByUsername(username));
   }, [dispatch, username]);
 
   useEffect(() => {
@@ -49,9 +57,7 @@ function Profile() {
   }, [dispatch, viewedUser, isOwnProfile]);
 
   const refreshStatus = () => {
-    if (viewedUser) {
-      dispatch(getConnectionStatus(viewedUser._id));
-    }
+    if (viewedUser) dispatch(getConnectionStatus(viewedUser._id));
   };
 
   const handleConnect = async () => {
@@ -74,41 +80,9 @@ function Profile() {
     refreshStatus();
   };
 
-  const openEdit = () => {
-    setForm({
-      bio: viewedProfile?.bio || "",
-      currentPost: viewedProfile?.currentPost || "",
-      pastWork: (viewedProfile?.pastWork || []).map((work) => ({
-        ...EMPTY_WORK,
-        ...work,
-      })),
-      education: (viewedProfile?.education || []).map((edu) => ({
-        ...EMPTY_EDUCATION,
-        ...edu,
-      })),
-    });
-  };
-
-  const closeEdit = () => setForm(null);
-
-  const setField = (key, value) => setForm((f) => ({ ...f, [key]: value }));
-
-  const setRow = (key, index, field, value) =>
-    setForm((f) => ({
-      ...f,
-      [key]: f[key].map((row, i) =>
-        i === index ? { ...row, [field]: value } : row,
-      ),
-    }));
-
-  const addRow = (key, empty) =>
-    setForm((f) => ({ ...f, [key]: [...f[key], { ...empty }] }));
-
-  const removeRow = (key, index) =>
-    setForm((f) => ({ ...f, [key]: f[key].filter((_, i) => i !== index) }));
-
   const handleProfilePicture = async (e) => {
     const file = e.target.files[0];
+    e.target.value = "";
     if (!file) return;
 
     const result = await dispatch(uploadProfilePicture(file));
@@ -116,7 +90,15 @@ function Profile() {
       dispatch(getUserByUsername(username));
       dispatch(getAboutUser());
     }
-    e.target.value = "";
+  };
+
+  const handleSaveProfile = async (form) => {
+    const result = await dispatch(updateProfileData(form));
+    if (updateProfileData.fulfilled.match(result)) {
+      setIsEditing(false);
+      dispatch(getUserByUsername(username));
+      dispatch(getAboutUser());
+    }
   };
 
   const handleDownloadResume = async () => {
@@ -126,25 +108,29 @@ function Profile() {
     }
   };
 
-  const handleSave = async (e) => {
-    e.preventDefault();
-    const result = await dispatch(updateProfileData(form));
-    if (updateProfileData.fulfilled.match(result)) {
-      closeEdit();
-      dispatch(getUserByUsername(username));
-      dispatch(getAboutUser());
+  const openComments = (postId) => {
+    setOpenCommentsFor(postId);
+    dispatch(getComments(postId));
+  };
+
+  const submitComment = async (text) => {
+    const result = await dispatch(
+      addComment({ postId: openCommentsFor, body: text }),
+    );
+    if (addComment.fulfilled.match(result)) {
+      dispatch(getComments(openCommentsFor));
     }
   };
 
   const userPosts = viewedUser
-    ? postState.post.filter((post) => post.userId?._id === viewedUser._id)
+    ? posts.filter((post) => post.userId?._id === viewedUser._id)
     : [];
 
   return (
-    <Userlayout>
+    <UserLayout>
       <DashboardLayout>
         <div className={styles.container}>
-          {authState.viewedUserFetched && !viewedUser && (
+          {viewedUserFetched && !viewedUser && (
             <div className={styles.emptyState}>User not found.</div>
           )}
 
@@ -193,6 +179,7 @@ function Profile() {
                     </>
                   )}
                 </div>
+
                 <div className={styles.headerInfo}>
                   <p className={styles.name}>{viewedUser.name}</p>
                   <p className={styles.username}>@{viewedUser.username}</p>
@@ -230,72 +217,32 @@ function Profile() {
                     <button
                       type="button"
                       className={styles.secondaryButton}
-                      onClick={openEdit}
+                      onClick={() => setIsEditing(true)}
                     >
                       Edit Profile
                     </button>
                   ) : (
                     connectionStatus && (
-                      <div className={styles.connectActions}>
-                        {connectionStatus.status === "none" && (
-                          <button
-                            type="button"
-                            className={styles.connectButton}
-                            onClick={handleConnect}
-                          >
-                            Connect
-                          </button>
-                        )}
-
-                        {connectionStatus.status === "pending_sent" && (
-                          <button
-                            type="button"
-                            className={styles.secondaryButton}
-                            onClick={handleCancel}
-                          >
-                            Cancel Request
-                          </button>
-                        )}
-
-                        {connectionStatus.status === "pending_received" && (
-                          <>
-                            <button
-                              type="button"
-                              className={styles.connectButton}
-                              onClick={() => handleRespond("accept")}
-                            >
-                              Accept
-                            </button>
-                            <button
-                              type="button"
-                              className={styles.secondaryButton}
-                              onClick={() => handleRespond("decline")}
-                            >
-                              Decline
-                            </button>
-                          </>
-                        )}
-
-                        {connectionStatus.status === "connected" && (
-                          <span className={styles.connectedBadge}>
-                            Connected
-                          </span>
-                        )}
-                      </div>
+                      <ConnectionButton
+                        status={connectionStatus.status}
+                        onConnect={handleConnect}
+                        onCancel={handleCancel}
+                        onRespond={handleRespond}
+                      />
                     )
                   )}
                 </div>
               </div>
 
               {viewedProfile?.bio && (
-                <div className={styles.section}>
+                <section className={styles.section}>
                   <h2 className={styles.sectionTitle}>About</h2>
                   <p className={styles.bioText}>{viewedProfile.bio}</p>
-                </div>
+                </section>
               )}
 
               {viewedProfile?.pastWork?.length > 0 && (
-                <div className={styles.section}>
+                <section className={styles.section}>
                   <h2 className={styles.sectionTitle}>Experience</h2>
                   {viewedProfile.pastWork.map((work, i) => (
                     <div key={i} className={styles.entry}>
@@ -308,11 +255,11 @@ function Profile() {
                       )}
                     </div>
                   ))}
-                </div>
+                </section>
               )}
 
               {viewedProfile?.education?.length > 0 && (
-                <div className={styles.section}>
+                <section className={styles.section}>
                   <h2 className={styles.sectionTitle}>Education</h2>
                   {viewedProfile.education.map((edu, i) => (
                     <div key={i} className={styles.entry}>
@@ -326,218 +273,94 @@ function Profile() {
                       )}
                     </div>
                   ))}
-                </div>
+                </section>
               )}
 
               <div className={styles.feed}>
-                {userPosts.length === 0 && (
+                {userPosts.length === 0 ? (
                   <div className={styles.emptyState}>No posts yet.</div>
+                ) : (
+                  userPosts.map((post) => (
+                    <PostCard
+                      key={post._id}
+                      post={post}
+                      currentUserId={currentUserId}
+                      onToggleLike={(id) => dispatch(toggleLike(id))}
+                      onOpenComments={openComments}
+                      onDelete={(id) => dispatch(deletePost(id))}
+                    />
+                  ))
                 )}
-
-                {userPosts.map((post) => (
-                  <div key={post._id} className={styles.postCard}>
-                    <div className={styles.postHeader}>
-                      <img
-                        className={styles.postAvatar}
-                        src={mediaUrl(post.userId?.profilePicture)}
-                        alt={post.userId?.name}
-                      />
-                      <div>
-                        <p className={styles.postAuthor}>{post.userId?.name}</p>
-                        <p className={styles.postUsername}>
-                          @{post.userId?.username}
-                        </p>
-                      </div>
-                    </div>
-
-                    <p className={styles.postBody}>{post.body}</p>
-
-                    {post.media &&
-                      (["mp4", "webm", "quicktime", "mov"].includes(
-                        post.fileType,
-                      ) ? (
-                        <video
-                          className={styles.postMedia}
-                          src={mediaUrl(post.media)}
-                          controls
-                        />
-                      ) : (
-                        <img
-                          className={styles.postMedia}
-                          src={mediaUrl(post.media)}
-                          alt="Post attachment"
-                        />
-                      ))}
-
-                    <p className={styles.postFooter}>
-                      {Array.isArray(post.likes) ? post.likes.length : 0} likes
-                    </p>
-                  </div>
-                ))}
               </div>
             </>
           )}
         </div>
 
-        {form && (
-          <div className={styles.modalOverlay} onClick={closeEdit}>
-            <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-              <div className={styles.modalHeader}>
-                <h3>Edit Profile</h3>
-                <button
-                  type="button"
-                  className={styles.modalClose}
-                  onClick={closeEdit}
-                  aria-label="Close"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 18 18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
+        {openCommentsFor && (
+          <CommentsModal
+            comments={comments}
+            onClose={() => setOpenCommentsFor(null)}
+            onSubmit={submitComment}
+          />
+        )}
 
-              <form className={styles.modalBody} onSubmit={handleSave}>
-                <label className={styles.field}>
-                  <span className={styles.label}>Headline</span>
-                  <input
-                    className={styles.input}
-                    value={form.currentPost}
-                    onChange={(e) => setField("currentPost", e.target.value)}
-                    placeholder="e.g. Frontend Developer at Wivly"
-                  />
-                </label>
-
-                <label className={styles.field}>
-                  <span className={styles.label}>Bio</span>
-                  <textarea
-                    className={styles.textarea}
-                    value={form.bio}
-                    onChange={(e) => setField("bio", e.target.value)}
-                    placeholder="Tell people about yourself"
-                  />
-                </label>
-
-                <div className={styles.field}>
-                  <span className={styles.label}>Experience</span>
-                  {form.pastWork.map((work, i) => (
-                    <div key={i} className={styles.rowItem}>
-                      <input
-                        className={styles.input}
-                        value={work.position}
-                        onChange={(e) =>
-                          setRow("pastWork", i, "position", e.target.value)
-                        }
-                        placeholder="Position"
-                      />
-                      <input
-                        className={styles.input}
-                        value={work.company}
-                        onChange={(e) =>
-                          setRow("pastWork", i, "company", e.target.value)
-                        }
-                        placeholder="Company"
-                      />
-                      <input
-                        className={styles.input}
-                        value={work.years}
-                        onChange={(e) =>
-                          setRow("pastWork", i, "years", e.target.value)
-                        }
-                        placeholder="Years (e.g. 2021 - 2023)"
-                      />
-                      <button
-                        type="button"
-                        className={styles.removeButton}
-                        onClick={() => removeRow("pastWork", i)}
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    className={styles.addButton}
-                    onClick={() => addRow("pastWork", EMPTY_WORK)}
-                  >
-                    + Add experience
-                  </button>
-                </div>
-
-                <div className={styles.field}>
-                  <span className={styles.label}>Education</span>
-                  {form.education.map((edu, i) => (
-                    <div key={i} className={styles.rowItem}>
-                      <input
-                        className={styles.input}
-                        value={edu.school}
-                        onChange={(e) =>
-                          setRow("education", i, "school", e.target.value)
-                        }
-                        placeholder="School"
-                      />
-                      <input
-                        className={styles.input}
-                        value={edu.degree}
-                        onChange={(e) =>
-                          setRow("education", i, "degree", e.target.value)
-                        }
-                        placeholder="Degree"
-                      />
-                      <input
-                        className={styles.input}
-                        value={edu.fieldOfStudy}
-                        onChange={(e) =>
-                          setRow("education", i, "fieldOfStudy", e.target.value)
-                        }
-                        placeholder="Field of study"
-                      />
-                      <button
-                        type="button"
-                        className={styles.removeButton}
-                        onClick={() => removeRow("education", i)}
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    className={styles.addButton}
-                    onClick={() => addRow("education", EMPTY_EDUCATION)}
-                  >
-                    + Add education
-                  </button>
-                </div>
-
-                <div className={styles.modalFooter}>
-                  <button
-                    type="button"
-                    className={styles.cancelButton}
-                    onClick={closeEdit}
-                  >
-                    Cancel
-                  </button>
-                  <button type="submit" className={styles.saveButton}>
-                    Save
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
+        {isEditing && (
+          <EditProfileModal
+            profile={viewedProfile}
+            onClose={() => setIsEditing(false)}
+            onSave={handleSaveProfile}
+          />
         )}
       </DashboardLayout>
-    </Userlayout>
+    </UserLayout>
   );
 }
 
-export default Profile;
+function ConnectionButton({ status, onConnect, onCancel, onRespond }) {
+  if (status === "none") {
+    return (
+      <button
+        type="button"
+        className={styles.connectButton}
+        onClick={onConnect}
+      >
+        Connect
+      </button>
+    );
+  }
+
+  if (status === "pending_sent") {
+    return (
+      <button
+        type="button"
+        className={styles.secondaryButton}
+        onClick={onCancel}
+      >
+        Cancel Request
+      </button>
+    );
+  }
+
+  if (status === "pending_received") {
+    return (
+      <div className={styles.connectActions}>
+        <button
+          type="button"
+          className={styles.connectButton}
+          onClick={() => onRespond("accept")}
+        >
+          Accept
+        </button>
+        <button
+          type="button"
+          className={styles.secondaryButton}
+          onClick={() => onRespond("decline")}
+        >
+          Decline
+        </button>
+      </div>
+    );
+  }
+
+  return <span className={styles.connectedBadge}>Connected</span>;
+}

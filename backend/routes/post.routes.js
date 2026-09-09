@@ -6,21 +6,21 @@ const {
   createPost,
   getAllPosts,
   deletePost,
+  toggleLike,
   commentPost,
   getCommentsByPost,
   deleteComment,
-  toggleLike,
 } = require("../controllers/post.controllers");
 
-router.route("/").get(activeCheck);
-router
-  .route("/create-post")
-  .post(authMiddleware, upload.single("media"), createPost);
-router.route("/get-all-posts").get(getAllPosts);
-router.route("/delete-post").delete(authMiddleware, deletePost);
-router.route("/comment-post").post(authMiddleware, commentPost);
-router.route("/get-comments-by-post").get(getCommentsByPost);
-router.route("/delete-comment").delete(authMiddleware, deleteComment);
-router.route("/toggle-like").post(authMiddleware, toggleLike);
+router.get("/", activeCheck);
+
+router.get("/get-all-posts", getAllPosts);
+router.get("/get-comments-by-post", getCommentsByPost);
+
+router.post("/create-post", authMiddleware, upload.single("media"), createPost);
+router.delete("/delete-post", authMiddleware, deletePost);
+router.post("/toggle-like", authMiddleware, toggleLike);
+router.post("/comment-post", authMiddleware, commentPost);
+router.delete("/delete-comment", authMiddleware, deleteComment);
 
 module.exports = router;

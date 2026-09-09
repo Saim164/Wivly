@@ -1,22 +1,17 @@
 import { useDispatch, useSelector } from "react-redux";
-import styles from "./styles.module.css";
 import { useRouter } from "next/router";
-import { useState } from "react";
-import { reset } from "@/config/redux/reducer/authreducer";
+import styles from "./styles.module.css";
+import { reset } from "@/config/redux/authSlice";
 
 export default function Navbar() {
   const router = useRouter();
-  const authState = useSelector((state) => state.auth);
   const dispatch = useDispatch();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { profileFetched, user } = useSelector((state) => state.auth);
 
   const handleLogout = () => {
-    setIsLoggingOut(true);
-    setTimeout(() => {
-      localStorage.removeItem("token");
-      dispatch(reset());
-      router.push("/login");
-    }, 250);
+    localStorage.removeItem("token");
+    dispatch(reset());
+    router.push("/login");
   };
 
   return (
@@ -26,23 +21,17 @@ export default function Navbar() {
           Wivly
         </h1>
 
-        {authState.profileFetched && (
-          <div
-            className={`${styles.profileWrap} ${
-              isLoggingOut ? styles.fadeOut : ""
-            }`}
-          >
+        {profileFetched ? (
+          <div className={styles.profileWrap}>
             <p className={styles.welcomeText}>
-              Welcome, <span>{authState.user?.userId?.name}</span>
+              Welcome, <span>{user?.userId?.name}</span>
             </p>
             <div
               className={styles.profileLink}
-              onClick={() =>
-                router.push(`/profile/${authState.user?.userId?.username}`)
-              }
+              onClick={() => router.push(`/profile/${user?.userId?.username}`)}
             >
               <span className={styles.avatar}>
-                {authState.user?.userId?.name?.charAt(0).toUpperCase() || "U"}
+                {user?.userId?.name?.charAt(0).toUpperCase() || "U"}
               </span>
               <p>Profile</p>
             </div>
@@ -50,14 +39,10 @@ export default function Navbar() {
               Logout
             </button>
           </div>
-        )}
-
-        {!authState.profileFetched && (
+        ) : (
           <button
             className={styles.btnJoin}
-            onClick={() => {
-              router.push("/login");
-            }}
+            onClick={() => router.push("/login")}
           >
             Be a part
           </button>
