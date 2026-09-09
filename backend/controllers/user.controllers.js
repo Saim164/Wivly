@@ -6,8 +6,28 @@ const jwt = require("jsonwebtoken");
 const PDFDocument = require("pdfkit");
 const crypto = require("crypto");
 const fs = require("fs");
+const { uploadToCloudinary } = require("../config/cloudinary");
 
-const convetUserDataToPdf = (userData) => {
+// Resolve a profile picture into something PDFKit can draw: a Buffer for a
+// remote (Cloudinary) URL, a local path for a legacy filename, or null.
+const resolveResumeImage = async (picture) => {
+  try {
+    if (!picture) return null;
+
+    if (picture.startsWith("http")) {
+      const response = await fetch(picture);
+      if (!response.ok) return null;
+      return Buffer.from(await response.arrayBuffer());
+    }
+
+    const localPath = `uploads/${picture}`;
+    return fs.existsSync(localPath) ? localPath : null;
+  } catch (error) {
+    return null;
+  }
+};
+
+const convetUserDataToPdf = (userData, imageInput) => {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ margin: 50 });
     const outputPath = crypto.randomBytes(32).toString("hex") + ".pdf";
@@ -20,10 +40,9 @@ const convetUserDataToPdf = (userData) => {
     const muted = "#6b6b6b";
     const rule = "#e5e0e2";
 
-    const picturePath = `uploads/${userData.userId.profilePicture}`;
-    if (fs.existsSync(picturePath)) {
+    if (imageInput) {
       try {
-        doc.image(picturePath, doc.page.width - 110, 50, {
+        doc.image(imageInput, doc.page.width - 110, 50, {
           width: 60,
           height: 60,
         });
@@ -155,12 +174,19 @@ const login = async (req, res) => {
 const uploadProfilePicture = async (req, res) => {
   try {
     const user = req.user;
-    user.profilePicture = req.file.filename;
+
+    if (!req.file) {
+      return res.status(400).json({ message: "No file provided" });
+    }
+
+    const result = await uploadToCloudinary(req.file.buffer);
+    user.profilePicture = result.secure_url;
     await user.save();
 
-    return res
-      .status(200)
-      .json({ message: "Profile picture uploaded successfully" });
+    return res.status(200).json({
+      message: "Profile picture uploaded successfully",
+      profilePicture: user.profilePicture,
+    });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -246,7 +272,10 @@ const downloadProfile = async (req, res) => {
       return res.status(404).json({ message: "Profile not found" });
     }
 
-    let outputPath = await convetUserDataToPdf(userProfile);
+    const imageInput = await resolveResumeImage(
+      userProfile.userId.profilePicture,
+    );
+    let outputPath = await convetUserDataToPdf(userProfile, imageInput);
 
     return res.json({ message: outputPath });
   } catch (error) {

@@ -5,6 +5,7 @@ import styles from "./index.module.css";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
+import { mediaUrl } from "@/config/mediaUrl";
 
 function Discover() {
   const authState = useSelector((state) => state.auth);
@@ -44,9 +45,7 @@ function Discover() {
               >
                 <img
                   className={styles.avatar}
-                  src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/${
-                    profile.userId?.profilePicture || "default.png"
-                  }`}
+                  src={mediaUrl(profile.userId?.profilePicture)}
                   alt={profile.userId?.name}
                 />
                 <p className={styles.name}>{profile.userId?.name}</p>

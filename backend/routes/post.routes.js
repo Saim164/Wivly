@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const authMiddleware = require("../middlewares/auth.js");
-const multer = require("multer");
+const upload = require("../middlewares/upload.js");
 const {
   activeCheck,
   createPost,
@@ -11,17 +11,6 @@ const {
   deleteComment,
   toggleLike,
 } = require("../controllers/post.controllers");
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/");
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
-
-const upload = multer({ storage: storage });
 
 router.route("/").get(activeCheck);
 router

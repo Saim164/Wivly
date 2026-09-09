@@ -1,5 +1,6 @@
 const Post = require("../models/post.model.js");
 const Comment = require("../models/comment.model.js");
+const { uploadToCloudinary } = require("../config/cloudinary.js");
 
 const activeCheck = async (req, res) => {
   return res.status(200).json({ message: "Active" });
@@ -9,11 +10,20 @@ const createPost = async (req, res) => {
   const user = req.user;
   const { body } = req.body;
   try {
+    let media = "";
+    let fileType = "";
+
+    if (req.file) {
+      const result = await uploadToCloudinary(req.file.buffer);
+      media = result.secure_url;
+      fileType = req.file.mimetype.split("/")[1];
+    }
+
     const post = new Post({
       userId: user._id,
       body: body,
-      media: req.file !== undefined ? req.file.filename : "",
-      fileType: req.file !== undefined ? req.file.mimetype.split("/")[1] : "",
+      media: media,
+      fileType: fileType,
     });
 
     await post.save();

@@ -9,6 +9,7 @@ import {
   getMyConnections,
   respondConnectionRequest,
 } from "@/config/redux/action/authaction";
+import { mediaUrl } from "@/config/mediaUrl";
 
 function MyConnections() {
   const dispatch = useDispatch();
@@ -44,9 +45,7 @@ function MyConnections() {
                   <div key={request._id} className={styles.row}>
                     <img
                       className={styles.avatar}
-                      src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/${
-                        request.userId?.profilePicture || "default.png"
-                      }`}
+                      src={mediaUrl(request.userId?.profilePicture)}
                       alt={request.userId?.name}
                       onClick={() =>
                         router.push(`/profile/${request.userId?.username}`)
@@ -94,9 +93,7 @@ function MyConnections() {
                   >
                     <img
                       className={styles.avatar}
-                      src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/${
-                        person.profilePicture || "default.png"
-                      }`}
+                      src={mediaUrl(person.profilePicture)}
                       alt={person.name}
                     />
                     <div className={styles.info}>

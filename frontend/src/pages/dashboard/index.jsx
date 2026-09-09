@@ -12,6 +12,7 @@ import {
   getCommentsByPost,
   commentPost,
 } from "@/config/redux/action/postaction";
+import { mediaUrl } from "@/config/mediaUrl";
 
 function Dashboard() {
   const authState = useSelector((state) => state.auth);
@@ -77,9 +78,7 @@ function Dashboard() {
           <div className={styles.createPostContainer}>
             <img
               className={styles.profileImg}
-              src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/${
-                authState.user?.userId?.profilePicture || "default.png"
-              }`}
+              src={mediaUrl(authState.user?.userId?.profilePicture)}
               alt="Your profile"
               onClick={() =>
                 currentUsername && router.push(`/profile/${currentUsername}`)
@@ -161,9 +160,7 @@ function Dashboard() {
                 <div className={styles.postHeader}>
                   <img
                     className={styles.postAvatar}
-                    src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/${
-                      post.userId?.profilePicture || "default.png"
-                    }`}
+                    src={mediaUrl(post.userId?.profilePicture)}
                     alt={post.userId?.name}
                   />
                   <div>
@@ -207,13 +204,13 @@ function Dashboard() {
                   ) ? (
                     <video
                       className={styles.postMedia}
-                      src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/${post.media}`}
+                      src={mediaUrl(post.media)}
                       controls
                     />
                   ) : (
                     <img
                       className={styles.postMedia}
-                      src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/${post.media}`}
+                      src={mediaUrl(post.media)}
                       alt="Post attachment"
                     />
                   ))}
@@ -326,9 +323,7 @@ function Dashboard() {
                     <div key={comment._id} className={styles.commentItem}>
                       <img
                         className={styles.commentAvatar}
-                        src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/${
-                          comment.userId?.profilePicture || "default.png"
-                        }`}
+                        src={mediaUrl(comment.userId?.profilePicture)}
                         alt={comment.userId?.name}
                       />
                       <div>

@@ -15,6 +15,7 @@ import {
   downloadResume,
   uploadProfilePicture,
 } from "@/config/redux/action/authaction";
+import { mediaUrl } from "@/config/mediaUrl";
 
 const EMPTY_WORK = { company: "", position: "", years: "" };
 const EMPTY_EDUCATION = { school: "", degree: "", fieldOfStudy: "" };
@@ -121,10 +122,7 @@ function Profile() {
   const handleDownloadResume = async () => {
     const result = await dispatch(downloadResume(viewedUser._id));
     if (downloadResume.fulfilled.match(result)) {
-      window.open(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/${result.payload.message}`,
-        "_blank",
-      );
+      window.open(mediaUrl(result.payload.message), "_blank");
     }
   };
 
@@ -156,9 +154,7 @@ function Profile() {
                 <div className={styles.avatarWrap}>
                   <img
                     className={styles.avatar}
-                    src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/${
-                      viewedUser.profilePicture || "default.png"
-                    }`}
+                    src={mediaUrl(viewedUser.profilePicture)}
                     alt={viewedUser.name}
                   />
                   {isOwnProfile && (
@@ -343,9 +339,7 @@ function Profile() {
                     <div className={styles.postHeader}>
                       <img
                         className={styles.postAvatar}
-                        src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/${
-                          post.userId?.profilePicture || "default.png"
-                        }`}
+                        src={mediaUrl(post.userId?.profilePicture)}
                         alt={post.userId?.name}
                       />
                       <div>
@@ -364,13 +358,13 @@ function Profile() {
                       ) ? (
                         <video
                           className={styles.postMedia}
-                          src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/${post.media}`}
+                          src={mediaUrl(post.media)}
                           controls
                         />
                       ) : (
                         <img
                           className={styles.postMedia}
-                          src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/${post.media}`}
+                          src={mediaUrl(post.media)}
                           alt="Post attachment"
                         />
                       ))}

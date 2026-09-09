@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllPosts } from "@/config/redux/action/postaction";
 import { getAboutUser, getAllUsers } from "@/config/redux/action/authaction";
+import { mediaUrl } from "@/config/mediaUrl";
 import {
   setTokenIsThere,
   setTokenIsNotThere,
@@ -95,9 +96,7 @@ function DashboardLayout({ children }) {
               <div key={profile._id} className={styles.topUser}>
                 <img
                   className={styles.topUserAvatar}
-                  src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/${
-                    profile.userId?.profilePicture || "default.png"
-                  }`}
+                  src={mediaUrl(profile.userId?.profilePicture)}
                   alt={profile.userId?.name}
                 />
                 <div>
