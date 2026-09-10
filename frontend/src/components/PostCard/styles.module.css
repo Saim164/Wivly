@@ -18,12 +18,21 @@
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
+  cursor: pointer;
+}
+
+.authorInfo {
+  cursor: pointer;
 }
 
 .author {
   font-weight: 600;
   font-size: 0.95rem;
   color: var(--color-text);
+}
+
+.authorInfo:hover .author {
+  text-decoration: underline;
 }
 
 .username {

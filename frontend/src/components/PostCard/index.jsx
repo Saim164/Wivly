@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import styles from "./styles.module.css";
 import { mediaUrl } from "@/config/mediaUrl";
 
@@ -10,10 +11,18 @@ export default function PostCard({
   onOpenComments,
   onDelete,
 }) {
+  const router = useRouter();
+
   const likes = Array.isArray(post.likes) ? post.likes : [];
   const isLiked = Boolean(currentUserId && likes.includes(currentUserId));
   const isOwner = currentUserId && post.userId?._id === currentUserId;
   const isVideo = VIDEO_TYPES.includes(post.fileType);
+
+  const goToAuthor = () => {
+    if (post.userId?.username) {
+      router.push(`/profile/${post.userId.username}`);
+    }
+  };
 
   return (
     <div className={styles.card}>
@@ -22,8 +31,9 @@ export default function PostCard({
           className={styles.avatar}
           src={mediaUrl(post.userId?.profilePicture)}
           alt={post.userId?.name}
+          onClick={goToAuthor}
         />
-        <div>
+        <div className={styles.authorInfo} onClick={goToAuthor}>
           <p className={styles.author}>{post.userId?.name}</p>
           <p className={styles.username}>@{post.userId?.username}</p>
         </div>
