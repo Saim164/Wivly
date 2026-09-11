@@ -2,6 +2,8 @@
 
 Connect without exaggeration.
 
+**Live:** [wivly-saim5.vercel.app](https://wivly-saim5.vercel.app)
+
 Wivly is a small social platform I built to actually learn Next.js and Redux instead of just reading about them. You can sign up, post updates with photos or video, like and comment on posts, send and accept connection requests, edit a proper profile (bio, experience, education), and even download someone's profile as a PDF resume. Basically a stripped-down LinkedIn/Twitter hybrid, built from scratch.
 
 > The backend is hosted on Render's free tier, which spins down when idle. If you're signing up or logging in and it seems stuck, that's it waking back up — give it up to 30 seconds on the first request.
@@ -55,19 +57,17 @@ Wivly/
 
 You'll need Node 18+, a MongoDB connection string, and a Cloudinary account.
 
-**Backend**
+**Backend** — copy `.env.example` to `.env` and fill in `MONGO_URL`, `JWT_SECRET`, the `CLOUDINARY_*` values, and `CLIENT_URL`.
 ```bash
 cd backend
 npm install
-cp .env.example .env   # fill in MONGO_URL, JWT_SECRET, CLOUDINARY_* and CLIENT_URL
 npm run dev
 ```
 
-**Frontend**
+**Frontend** — copy `.env.example` to `.env.local` and set `NEXT_PUBLIC_BACKEND_URL` to the backend's address.
 ```bash
 cd frontend
 npm install
-cp .env.example .env.local   # set NEXT_PUBLIC_BACKEND_URL to the backend's address
 npm run dev
 ```
 
