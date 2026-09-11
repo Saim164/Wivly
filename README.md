@@ -4,6 +4,8 @@ Connect without exaggeration.
 
 Wivly is a small social platform I built to actually learn Next.js and Redux instead of just reading about them. You can sign up, post updates with photos or video, like and comment on posts, send and accept connection requests, edit a proper profile (bio, experience, education), and even download someone's profile as a PDF resume. Basically a stripped-down LinkedIn/Twitter hybrid, built from scratch.
 
+> The backend is hosted on Render's free tier, which spins down when idle. If you're signing up or logging in and it seems stuck, that's it waking back up — give it up to 30 seconds on the first request.
+
 ## Why I built this
 
 I'd used React before, but never Next.js and never Redux for real state management. This project was me picking both up properly — the pages router, layouts, dynamic routes, and then Redux Toolkit for everything shared across the app (auth, posts, connections).
